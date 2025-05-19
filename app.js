@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const csrRoutes = require('./routes/csrRoutes');
 const workshopRoutes = require('./routes/workshopRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 
@@ -22,3 +23,4 @@ app.use("/auth", authRoutes);
 app.use("/notifications", notificationRoutes);
 app.use('/csr', csrRoutes);
 app.use('/workshops', workshopRoutes);
+app.use('/profile', profileRoutes);

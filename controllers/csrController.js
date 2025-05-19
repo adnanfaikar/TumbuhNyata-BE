@@ -74,3 +74,59 @@ exports.getAllCSR = async (req, res) => {
   const list = await CsrSubmission.findAll();
   res.json(list);
 };
+
+exports.getCSRHistory = async (req, res) => {
+  try {
+    const user_id = req.query.user_id;
+    if (!user_id) {
+      return res.status(400).json({ message: 'Parameter user_id diperlukan.' });
+    }
+
+    const submissions = await CsrSubmission.findAll({
+      where: { user_id },
+      order: [['start_date', 'DESC']]
+    });
+
+    res.json(submissions);
+  } catch (err) {
+    console.error('Error fetching CSR history:', err);
+    res.status(500).json({ message: 'Gagal mengambil riwayat CSR.' });
+  }
+};
+
+// NEW: detail salah satu riwayat CSR (cek juga agar hanya milik user itu)
+exports.getCSRHistoryDetail = async (req, res) => {
+  try {
+    const user_id = req.query.user_id;
+    const { id } = req.params;
+
+    if (!user_id) {
+      return res.status(400).json({ message: 'Parameter user_id diperlukan.' });
+    }
+
+    const submission = await CsrSubmission.findByPk(id);
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Riwayat CSR tidak ditemukan.' });
+    }
+
+    // Cek apakah submission milik user yang sesuai
+    // Konversi ke string untuk memastikan perbandingan yang benar
+    if (String(submission.user_id) !== String(user_id)) {
+      console.log('User ID mismatch:', { 
+        submissionUserId: submission.user_id, 
+        requestedUserId: user_id,
+        types: {
+          submissionUserIdType: typeof submission.user_id,
+          requestedUserIdType: typeof user_id
+        }
+      });
+      return res.status(403).json({ message: 'Anda tidak memiliki akses ke riwayat CSR ini.' });
+    }
+
+    res.json(submission);
+  } catch (err) {
+    console.error('Error fetching CSR history detail:', err);
+    res.status(500).json({ message: 'Gagal mengambil detail riwayat CSR.' });
+  }
+};
