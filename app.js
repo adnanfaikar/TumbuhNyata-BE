@@ -7,6 +7,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const csrRoutes = require('./routes/csrRoutes');
 const workshopRoutes = require('./routes/workshopRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const certificationRoutes = require('./routes/certificationRoutes');
 
 const app = express();
 
@@ -24,3 +25,4 @@ app.use("/notifications", notificationRoutes);
 app.use('/csr', csrRoutes);
 app.use('/workshops', workshopRoutes);
 app.use('/profile', profileRoutes);
+app.use('/certifications', certificationRoutes);

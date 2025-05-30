@@ -52,9 +52,17 @@ const loginUser = (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid NIB or password" });
         }
+        
+            // setelah bcrypt.compare sukses
+            console.log('>> DB user object:', user);
+            console.log('>> user.id_perusahaan =', user.id_perusahaan);
 
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token });
+            const token = jwt.sign(
+            { id: user.id_perusahaan },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+            );        
+            res.json({ token });
     });
 };
 

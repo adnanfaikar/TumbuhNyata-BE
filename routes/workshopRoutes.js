@@ -3,7 +3,7 @@ const router = express.Router();
 const workshopController = require('../controllers/workshopController');
 const uploadExcel = require('../middleware/uploadExcel');
 
-// POST /api/workshops/register
+// POST /workshops/register
 router.post('/register', uploadExcel.single('daftar_karyawan'), workshopController.registerWorkshop);
 
 module.exports = router;

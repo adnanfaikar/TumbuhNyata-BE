@@ -6,7 +6,7 @@ exports.getUserProfile = async (req, res) => {
   try {
     const userId = req.userId; // Didapatkan dari middleware auth
 
-    const sql = "SELECT id, nama_perusahaan, email, no_telp, NIB, alamat FROM user_perusahaan WHERE id = ?";
+    const sql = "SELECT id_perusahaan, nama_perusahaan, email, no_telp, NIB, alamat FROM user_perusahaan WHERE id_perusahaan = ?";
     db.query(sql, [userId], (err, results) => {
       if (err) {
         console.error('Error fetching user profile:', err);
@@ -36,7 +36,7 @@ exports.updateUserProfile = async (req, res) => {
       return res.status(400).json({ message: "Semua field harus diisi" });
     }
 
-    const sql = "UPDATE user_perusahaan SET nama_perusahaan = ?, email = ?, no_telp = ?, alamat = ? WHERE id = ?";
+    const sql = "UPDATE user_perusahaan SET nama_perusahaan = ?, email = ?, no_telp = ?, alamat = ? WHERE id_perusahaan = ?";
     db.query(sql, [companyName, email, phoneNumber, address, userId], (err, result) => {
       if (err) {
         console.error('Error updating user profile:', err);
