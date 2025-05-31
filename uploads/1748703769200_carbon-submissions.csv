@@ -1,0 +1,4 @@
+company_id,year,month,carbon_value,document_type,document_name,document_path,analysis
+1,2025,1,120.5,pdf,Laporan Emisi Januari,/uploads/emisi-jan-2025.pdf,Emisi meningkat karena aktivitas produksi
+2,2025,1,80.0,xlsx,Data Karbon Bandung,/uploads/emisi-bandung.xlsx,Emisi stabil
+1,2025,2,100.2,pdf,Laporan Emisi Februari,/uploads/emisi-feb-2025.pdf,Penurunan emisi dari bulan sebelumnya

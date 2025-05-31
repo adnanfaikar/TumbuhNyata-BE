@@ -1,0 +1,4 @@
+company_id,year,month,carbon_value,document_type,document_name,document_path,analysis
+1,2025,1,150.5,pdf,Laporan Jan.pdf,/uploads/jan.pdf,Monthly transportation emissions
+2,2025,2,165.3,xlsx,Data Feb.xlsx,/uploads/feb.xlsx,Monthly transportation emissions
+3,2025,1,234.8,csv,Manufacturing.csv,/uploads/mfg.csv,Manufacturing emissions - Line A

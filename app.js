@@ -8,6 +8,7 @@ const csrRoutes = require('./routes/csrRoutes');
 const workshopRoutes = require('./routes/workshopRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const certificationRoutes = require('./routes/certificationRoutes');
+const carbonSubmissionRoutes = require('./routes/carbonSubmissions');
 
 const app = express();
 
@@ -26,3 +27,4 @@ app.use('/csr', csrRoutes);
 app.use('/workshops', workshopRoutes);
 app.use('/profile', profileRoutes);
 app.use('/certifications', certificationRoutes);
+app.use('/carbon-submissions', carbonSubmissionRoutes);
