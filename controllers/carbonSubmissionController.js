@@ -3,12 +3,12 @@ const multer = require('multer');
 const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
-const CarbonSubmission = require('../models/CarbonSubmission');
+const CarbonSubmission = require('../models/carbonSubmission');
 
 // Konfigurasi multer untuk upload file
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../uploads/workshop');
+    const uploadDir = path.join(__dirname, '../uploads');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -60,17 +60,22 @@ class CarbonSubmissionController {
           .pipe(csv())
           .on('data', (data) => {
             // Validasi dan clean data sesuai dengan CSV structure
+            const allowedTypes = ['laporan_csr', 'sertifikasi_csr', 'data_emisi', 'dokumen_pendukung_lain'];
+            let docType = data.document_type ? data.document_type.toString().trim() : 'data_emisi';
+            if (!allowedTypes.includes(docType)) docType = 'data_emisi';
+
             const cleanData = {
-              company_id: data.company_id ? data.company_id.toString().trim() : null,
+              id_perusahaan: data.id_perusahaan ? data.id_perusahaan.toString().trim() : null,
               year: parseInt(data.year) || new Date().getFullYear(),
               month: parseInt(data.month) || new Date().getMonth() + 1,
               carbon_value: parseFloat(data.carbon_value) || 0,
-              document_type: data.document_type ? data.document_type.toString().trim() : 'csv_upload',
+              document_type: docType,
               document_name: data.document_name ? data.document_name.toString().trim() : req.file.originalname,
               document_path: data.document_path ? data.document_path.toString().trim() : req.file.path,
               analysis: data.analysis ? data.analysis.toString().trim() : null,
               created_at: new Date()
             };
+
             
             // Validasi tambahan
             if (cleanData.month < 1 || cleanData.month > 12) {
@@ -126,13 +131,13 @@ class CarbonSubmissionController {
   // Get semua data submissions
   static async getAllSubmissions(req, res) {
     try {
-      const { page = 1, limit = 10, year, month, company_id } = req.query;
+      const { page = 1, limit = 10, year, month, id_perusahaan } = req.query;
       const offset = (page - 1) * limit;
 
       const whereClause = {};
       if (year) whereClause.year = year;
       if (month) whereClause.month = month;
-      if (company_id) whereClause.company_id = company_id;
+      if (id_perusahaan) whereClause.id_perusahaan = id_perusahaan;
 
       const submissions = await CarbonSubmission.findAndCountAll({
         where: whereClause,
@@ -165,10 +170,10 @@ class CarbonSubmissionController {
   // Get carbon footprint analytics
   static async getAnalytics(req, res) {
     try {
-      const { year = new Date().getFullYear(), company_id } = req.query;
+      const { year = new Date().getFullYear(), id_perusahaan } = req.query;
       
       const whereClause = { year: parseInt(year) };
-      if (company_id) whereClause.company_id = company_id;
+      if (id_perusahaan) whereClause.id_perusahaan = id_perusahaan;
 
       // Get monthly data untuk chart
       const monthlyData = await CarbonSubmission.findAll({

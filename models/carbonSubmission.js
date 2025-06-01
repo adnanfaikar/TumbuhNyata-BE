@@ -8,7 +8,7 @@ const CarbonSubmission = sequelize.define('CarbonSubmission', {
     primaryKey: true,
     autoIncrement: true
   },
-  company_id: {
+  id_perusahaan: {
     type: DataTypes.STRING(255),
     allowNull: true,
     comment: 'ID perusahaan yang melakukan submission'
@@ -66,7 +66,7 @@ const CarbonSubmission = sequelize.define('CarbonSubmission', {
   timestamps: false, // Karena kita menggunakan created_at manual
   indexes: [
     {
-      fields: ['company_id']
+      fields: ['id_perusahaan']
     },
     {
       fields: ['year', 'month']
@@ -78,9 +78,9 @@ const CarbonSubmission = sequelize.define('CarbonSubmission', {
 });
 
 // Method untuk mendapatkan data per bulan
-CarbonSubmission.getMonthlyData = async function(year, companyId = null) {
+CarbonSubmission.getMonthlyData = async function(year, id_perusahaan = null) {
   const whereClause = { year: parseInt(year) };
-  if (companyId) whereClause.company_id = companyId;
+  if (id_perusahaan) whereClause.id_perusahaan = id_perusahaan;
 
   return await this.findAll({
     attributes: [
@@ -96,9 +96,9 @@ CarbonSubmission.getMonthlyData = async function(year, companyId = null) {
 };
 
 // Method untuk mendapatkan total statistics
-CarbonSubmission.getTotalStats = async function(year, companyId = null) {
+CarbonSubmission.getTotalStats = async function(year, id_perusahaan = null) {
   const whereClause = { year: parseInt(year) };
-  if (companyId) whereClause.company_id = companyId;
+  if (id_perusahaan) whereClause.company_id = id_perusahaan;
 
   return await this.findOne({
     attributes: [
@@ -113,7 +113,7 @@ CarbonSubmission.getTotalStats = async function(year, companyId = null) {
 };
 
 // Method untuk mendapatkan data tren tahunan
-CarbonSubmission.getYearlyTrend = async function(companyId = null, years = 5) {
+CarbonSubmission.getYearlyTrend = async function(id_perusahaan = null, years = 5) {
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - years + 1;
   
@@ -123,7 +123,7 @@ CarbonSubmission.getYearlyTrend = async function(companyId = null, years = 5) {
       [sequelize.Op.lte]: currentYear
     }
   };
-  if (companyId) whereClause.company_id = companyId;
+  if (id_perusahaan) whereClause.company_id = id_perusahaan;
 
   return await this.findAll({
     attributes: [

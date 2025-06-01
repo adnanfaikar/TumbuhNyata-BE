@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { Certification } = require('../models');
 
 // ✅ GET semua pengajuan sertifikasi milik user
 exports.getUserCertifications = (req, res) => {
@@ -36,7 +37,7 @@ exports.getCertificationById = (req, res) => {
 };
 
 // ✅ POST ajukan sertifikasi baru
-exports.submitCertification = (req, res) => {
+exports.submitCertification = async (req, res) => {
   const userId = req.userId;
   const { name, description, credential_body, benefits, cost, supporting_documents } = req.body;
 
@@ -44,23 +45,24 @@ exports.submitCertification = (req, res) => {
     return res.status(400).json({ message: "Semua field harus diisi" });
   }
 
-  const sql = `
-    INSERT INTO certifications (user_id, name, description, credential_body, benefits, cost, status, submission_date, supporting_documents)
-    VALUES (?, ?, ?, ?, ?, ?, 'submitted', NOW(), ?)
-  `;
+  try {
+    const newCertification = await Certification.create({
+      user_id: userId,
+      name,
+      description,
+      credential_body,
+      benefits,
+      cost,
+      status: 'submitted',
+      submission_date: new Date(),
+      supporting_documents: JSON.stringify(supporting_documents)
+    });
 
-  db.query(
-    sql,
-    [userId, name, description, credential_body, benefits, cost, JSON.stringify(supporting_documents)],
-    (err, result) => {
-      if (err) {
-        console.error('Error submitting certification:', err);
-        return res.status(500).json({ message: "Gagal mengajukan sertifikasi", error: err.message });
-      }
-
-      res.status(201).json({ message: "Pengajuan sertifikasi berhasil", id: result.insertId });
-    }
-  );
+    res.status(201).json({ message: "Pengajuan sertifikasi berhasil", id: newCertification.id });
+  } catch (err) {
+    console.error('Error submitting certification:', err);
+    res.status(500).json({ message: "Gagal mengajukan sertifikasi", error: err.message });
+  }
 };
 
 // ✅ PUT untuk update status (opsional, misal admin)

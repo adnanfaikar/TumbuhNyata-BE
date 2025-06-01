@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../config/db');
+const { UserPerusahaan } = require('../models');
 
 const registerUser = async (req, res) => {
     const { companyName, email, password, phoneNumber, NIB, address } = req.body;
@@ -19,53 +19,45 @@ const registerUser = async (req, res) => {
         return res.status(400).json({ message: "NIB cannot exceed 13 characters" });
     }
     
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const sql = "INSERT INTO user_perusahaan (nama_perusahaan, email, password, no_telp, NIB, alamat) VALUES (?, ?, ?,?, ?, ?)";
-    db.query(sql, [companyName, email, hashedPassword, phoneNumber, NIB, address], (err, result) => {
-        if (err) return res.status(500).json({ message: "Error registering user", error: err });
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await UserPerusahaan.create({
+            nama_perusahaan: companyName,
+            email,
+            password: hashedPassword,
+            no_telp: phoneNumber,
+            NIB,
+            alamat: address
+        });
         res.status(201).json({ message: "User registered successfully" });
-    });
+    } catch (err) {
+        res.status(500).json({ message: "Error registering user", error: err.message });
+    }
 };
 
-
-const loginUser = (req, res) => {
+const loginUser = async (req, res) => {
     const { NIB, password } = req.body;
-
-    const sql = "SELECT * FROM user_perusahaan WHERE NIB = ?";
-    db.query(sql, [NIB], async (err, results) => {
-        if (err) return res.status(500).json({ message: "Error logging in", error: err });
-
-        if (results.length === 0) {
+    try {
+        const user = await UserPerusahaan.findOne({ where: { NIB } });
+        if (!user) {
             return res.status(401).json({ message: "Invalid NIB or password" });
         }
-
-        const user = results[0];
-
-
-        if (!user.password) { 
-            return res.status(500).json({ message: "Password is missing in database" });
+        if (!password || typeof password !== 'string' || !user.password || typeof user.password !== 'string') {
+            return res.status(500).json({ message: "Password is missing or invalid in request or database" });
         }
-
-        const isMatch = await bcrypt.compare(password, user.password); 
-
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid NIB or password" });
         }
-        
-            // setelah bcrypt.compare sukses
-            console.log('>> DB user object:', user);
-            console.log('>> user.id_perusahaan =', user.id_perusahaan);
-
-            const token = jwt.sign(
+        const token = jwt.sign(
             { id: user.id_perusahaan },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
-            );        
-            res.json({ token });
-    });
+        );
+        res.json({ token });
+    } catch (err) {
+        res.status(500).json({ message: "Error logging in", error: err.message });
+    }
 };
-
-
 
 module.exports = { registerUser, loginUser };
