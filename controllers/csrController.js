@@ -23,6 +23,43 @@ exports.submitCSR = async (req, res) => {
       agreed
     } = req.body;
 
+    // Debug output
+    console.log('Request Body:', req.body);
+    console.log('Files:', req.files);
+
+    // Fungsi untuk konversi format tanggal dari "DD MMM YYYY" ke "YYYY-MM-DD"
+    const convertDateFormat = (dateString) => {
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+          throw new Error('Invalid date format');
+        }
+        return date.toISOString().split('T')[0]; // Return YYYY-MM-DD
+      } catch (error) {
+        console.error('Date conversion error:', error);
+        throw new Error(`Invalid date format: ${dateString}`);
+      }
+    };
+
+    // Konversi budget ke number
+    const budgetNumber = parseFloat(budget.toString().replace(/[^\d.]/g, ''));
+    if (isNaN(budgetNumber)) {
+      return res.status(400).json({ 
+        message: 'Format budget tidak valid'
+      });
+    }
+
+    // Konversi tanggal
+    let convertedStartDate, convertedEndDate;
+    try {
+      convertedStartDate = convertDateFormat(start_date);
+      convertedEndDate = convertDateFormat(end_date);
+    } catch (error) {
+      return res.status(400).json({ 
+        message: `Error konversi tanggal: ${error.message}`
+      });
+    }
+
     // Penanganan file dengan cara yang lebih aman (opsional untuk testing)
     let proposal_url = null;
     let legality_url = null;
@@ -37,9 +74,18 @@ exports.submitCSR = async (req, res) => {
       }
     }
 
-    // Debug output
-    console.log('Request Body:', req.body);
-    console.log('Files:', req.files);
+    console.log('Converted data:', {
+      user_id,
+      program_name,
+      category,
+      description,
+      location,
+      partner_name,
+      start_date: convertedStartDate,
+      end_date: convertedEndDate,
+      budget: budgetNumber,
+      agreed: agreed === true || agreed === 'true'
+    });
 
     const newSubmission = await CsrSubmission.create({
       user_id,
@@ -48,12 +94,12 @@ exports.submitCSR = async (req, res) => {
       description,
       location,
       partner_name,
-      start_date,
-      end_date,
-      budget,
+      start_date: convertedStartDate,
+      end_date: convertedEndDate,
+      budget: budgetNumber,
       proposal_url,
       legality_url,
-      agreed: agreed === 'true',
+      agreed: agreed === true || agreed === 'true',
     });
 
     res.status(201).json({ message: 'Pengajuan CSR berhasil dibuat', data: newSubmission });
@@ -129,4 +175,4 @@ exports.getCSRHistoryDetail = async (req, res) => {
     console.error('Error fetching CSR history detail:', err);
     res.status(500).json({ message: 'Gagal mengambil detail riwayat CSR.' });
   }
-};
+}; 
