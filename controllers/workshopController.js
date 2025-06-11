@@ -22,11 +22,37 @@ exports.registerWorkshop = async (req, res) => {
     });
 
     res.status(201).json({
-      message: 'Pendaftaran Workshop Berhasil',
+      message: 'Pendaftaran workshop berhasil',
       data: registration
     });
   } catch (err) {
     console.error('DB Error:', err);
     res.status(500).json({ message: 'Gagal menyimpan pendaftaran workshop', error: err.message });
+  }
+};
+
+exports.deleteByWorkshopId = async (req, res) => {
+  const { workshopId } = req.params;
+
+  try {
+    const deleted = await WorkshopRegistration.destroy({
+      where: { workshop_id: workshopId }
+    });
+
+    if (!deleted) {
+      return res.status(404).json({
+        message: 'Workshop tidak ditemukan'
+      });
+    }
+
+    res.status(200).json({
+      message: 'Workshop berhasil dihapus'
+    });
+  } catch (err) {
+    console.error('Delete Error:', err);
+    res.status(500).json({
+      message: 'Gagal menghapus workshop',
+      error: err.message
+    });
   }
 };

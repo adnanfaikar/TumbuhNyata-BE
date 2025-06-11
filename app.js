@@ -17,9 +17,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '0.0.0.0';
 
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, HOST, () => {
+  console.log(`Server is running at http://${HOST}:${PORT}`);
+});
 
 app.use("/auth", authRoutes);
 app.use("/notifications", notificationRoutes);
