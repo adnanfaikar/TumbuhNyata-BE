@@ -56,3 +56,15 @@ exports.deleteByWorkshopId = async (req, res) => {
     });
   }
 };
+
+exports.getHistoryByEmail = async (req, res) => {
+  const { email } = req.query;
+
+  try {
+    const history = await WorkshopRegistration.findAll({ where: { email } });
+
+    res.status(200).json(history);
+  } catch (err) {
+    res.status(500).json({ message: 'Gagal ambil riwayat', error: err.message });
+  }
+};
