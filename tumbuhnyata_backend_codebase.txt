@@ -1,0 +1,5533 @@
+================================================================================
+CODEBASE DOCUMENTATION FOR NOTEBOOKLM
+================================================================================
+Generated on: 2025-06-07 16:40:19
+Project root: D:\2025\TumbuhNyata-BE
+================================================================================
+
+PROJECT OVERVIEW
+----------------------------------------
+This appears to be a TumbuhNyata Backend API project - a Node.js/Express application
+for managing CSR (Corporate Social Responsibility), carbon emissions tracking,
+certifications, workshops, and notifications for companies.
+
+FILE STATISTICS
+----------------------------------------
+Total files processed: 34
+
+JSON                :   1 files
+JavaScript          :  28 files
+Markdown            :   1 files
+Python              :   1 files
+SQL                 :   1 files
+Unknown             :   2 files
+
+DIRECTORY STRUCTURE
+----------------------------------------
+📁 config/
+   📄 db.js (JavaScript, 0.3 KB)
+   📄 dotenv.js (JavaScript, 0.1 KB)
+   📄 notification_schema.sql (SQL, 0.4 KB)
+
+📁 controllers/
+   📄 authController.js (JavaScript, 2.2 KB)
+   📄 carbonSubmissionController.js (JavaScript, 9.9 KB)
+   📄 certificationsController.js (JavaScript, 2.9 KB)
+   📄 csrController.js (JavaScript, 5.2 KB)
+   📄 csrSummaryController.js (JavaScript, 2.1 KB)
+   📄 notificationController.js (JavaScript, 2.1 KB)
+   📄 profileController.js (JavaScript, 2.9 KB)
+   📄 workshopController.js (JavaScript, 0.9 KB)
+
+📁 middleware/
+   📄 authMiddleware.js (JavaScript, 0.8 KB)
+   📄 upload.js (JavaScript, 0.9 KB)
+   📄 uploadExcel.js (JavaScript, 0.8 KB)
+
+📁 models/
+   📄 Certification.js (JavaScript, 1.1 KB)
+   📄 CsrSubmission.js (JavaScript, 1.5 KB)
+   📄 Notification.js (JavaScript, 0.7 KB)
+   📄 UserPerusahaan.js (JavaScript, 0.8 KB)
+   📄 WorkshopRegistration.js (JavaScript, 0.9 KB)
+   📄 carbonSubmission.js (JavaScript, 4.6 KB)
+   📄 index.js (JavaScript, 0.5 KB)
+
+📁 root/
+   📄 .env (Unknown, 0.1 KB)
+   📄 .gitignore (Unknown, 0.0 KB)
+   📄 README-notification.md (Markdown, 3.9 KB)
+   📄 app.js (JavaScript, 1.0 KB)
+   📄 codebase_to_txt.py (Python, 12.3 KB)
+   📄 package.json (JSON, 0.5 KB)
+
+📁 routes/
+   📄 authRoutes.js (JavaScript, 0.3 KB)
+   📄 carbonSubmissions.js (JavaScript, 11.8 KB)
+   📄 certificationRoutes.js (JavaScript, 0.7 KB)
+   📄 csrRoutes.js (JavaScript, 0.7 KB)
+   📄 notificationRoutes.js (JavaScript, 0.6 KB)
+   📄 profileRoutes.js (JavaScript, 0.5 KB)
+   📄 workshopRoutes.js (JavaScript, 0.4 KB)
+
+
+================================================================================
+COMPLETE SOURCE CODE
+================================================================================
+
+
+==================== CONFIGURATION & SETUP ====================
+
+
+==================== DATABASE MODELS ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: models\Certification.js
+TYPE: JavaScript
+SIZE: 1086 bytes (1.1 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const Certification = sequelize.define('Certification', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  credential_body: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  benefits: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  cost: {
+    type: DataTypes.DECIMAL(15,2),
+    allowNull: false
+  },
+  status: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    defaultValue: 'submitted'
+  },
+  submission_date: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  },
+  supporting_documents: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, {
+  tableName: 'certifications',
+  timestamps: false
+});
+
+module.exports = Certification; 
+
+
+────────────────────────────────────────────────────────────
+FILE: models\CsrSubmission.js
+TYPE: JavaScript
+SIZE: 1492 bytes (1.5 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+// Model untuk pengajuan CSR
+const CsrSubmission = sequelize.define('CsrSubmission', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  program_name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  category: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  location: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  partner_name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  start_date: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  end_date: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  budget: {
+    type: DataTypes.DECIMAL(15,2),
+    allowNull: false
+  },
+  proposal_url: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  legality_url: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  agreed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  status: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    defaultValue: 'pending'
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'csr_submissions',
+  timestamps: false
+});
+
+module.exports = CsrSubmission; 
+
+
+────────────────────────────────────────────────────────────
+FILE: models\Notification.js
+TYPE: JavaScript
+SIZE: 709 bytes (0.7 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const Notification = sequelize.define('Notification', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  title: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  message: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  is_read: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'notifications',
+  timestamps: false
+});
+
+module.exports = Notification; 
+
+
+────────────────────────────────────────────────────────────
+FILE: models\UserPerusahaan.js
+TYPE: JavaScript
+SIZE: 804 bytes (0.8 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const UserPerusahaan = sequelize.define('UserPerusahaan', {
+  id_perusahaan: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  nama_perusahaan: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  password: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  no_telp: {
+    type: DataTypes.STRING(50),
+    allowNull: false
+  },
+  NIB: {
+    type: DataTypes.STRING(13),
+    allowNull: false
+  },
+  alamat: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, {
+  tableName: 'user_perusahaan',
+  timestamps: false
+});
+
+module.exports = UserPerusahaan; 
+
+
+────────────────────────────────────────────────────────────
+FILE: models\WorkshopRegistration.js
+TYPE: JavaScript
+SIZE: 888 bytes (0.9 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const WorkshopRegistration = sequelize.define('WorkshopRegistration', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  workshop_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  company_name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  file_path: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  status: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    defaultValue: 'pending'
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'workshop_registrations',
+  timestamps: false
+});
+
+module.exports = WorkshopRegistration;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: models\carbonSubmission.js
+TYPE: JavaScript
+SIZE: 4703 bytes (4.6 KB)
+────────────────────────────────────────────────────────────
+
+// models/CarbonSubmission.js
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db"); // Sesuaikan dengan konfigurasi database Anda
+
+const CarbonSubmission = sequelize.define(
+  "CarbonSubmission",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    company_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      comment: "ID perusahaan yang melakukan submission",
+    },
+    year: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: new Date().getFullYear(),
+      comment: "Tahun data carbon footprint",
+    },
+    month: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: new Date().getMonth() + 1,
+      validate: {
+        min: 1,
+        max: 12,
+      },
+      comment: "Bulan data carbon footprint (1-12)",
+    },
+    carbon_value: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0.0,
+      comment: "Nilai carbon footprint dalam kg CO2e",
+    },
+    document_type: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      defaultValue: "csv_upload",
+      comment: "Jenis dokumen (csv_upload, pdf, xlsx, manual_input, etc.)",
+    },
+    document_name: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      comment: "Nama file dokumen yang diupload",
+    },
+    document_path: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: "Path lengkap file dokumen di server",
+    },
+    analysis: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: "Analisis atau catatan tambahan",
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    tableName: "carbon_submissions",
+    timestamps: false, // Karena kita menggunakan created_at manual
+    indexes: [
+      {
+        fields: ["company_id"],
+      },
+      {
+        fields: ["year", "month"],
+      },
+      {
+        fields: ["created_at"],
+      },
+    ],
+  }
+);
+
+// Method untuk mendapatkan data per bulan
+CarbonSubmission.getMonthlyData = async function (year, company_id = null) {
+  const whereClause = { year: parseInt(year) };
+  if (company_id) whereClause.company_id = company_id;
+
+  return await this.findAll({
+    attributes: [
+      "month",
+      [sequelize.fn("SUM", sequelize.col("carbon_value")), "total_carbon"],
+      [sequelize.fn("COUNT", sequelize.col("id")), "submission_count"],
+      [sequelize.fn("AVG", sequelize.col("carbon_value")), "avg_carbon"],
+    ],
+    where: whereClause,
+    group: ["month"],
+    order: [["month", "ASC"]],
+  });
+};
+
+// Method untuk mendapatkan total statistics
+CarbonSubmission.getTotalStats = async function (year, company_id = null) {
+  const whereClause = { year: parseInt(year) };
+  if (company_id) whereClause.company_id = company_id;
+
+  return await this.findOne({
+    attributes: [
+      [sequelize.fn("SUM", sequelize.col("carbon_value")), "total_carbon"],
+      [sequelize.fn("AVG", sequelize.col("carbon_value")), "avg_carbon"],
+      [sequelize.fn("COUNT", sequelize.col("id")), "total_submissions"],
+      [sequelize.fn("MIN", sequelize.col("carbon_value")), "min_carbon"],
+      [sequelize.fn("MAX", sequelize.col("carbon_value")), "max_carbon"],
+    ],
+    where: whereClause,
+  });
+};
+
+// Method untuk mendapatkan data tren tahunan
+CarbonSubmission.getYearlyTrend = async function (
+  company_id = null,
+  years = 5
+) {
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - years + 1;
+
+  const whereClause = {
+    year: {
+      [sequelize.Op.gte]: startYear,
+      [sequelize.Op.lte]: currentYear,
+    },
+  };
+  if (company_id) whereClause.company_id = company_id;
+
+  return await this.findAll({
+    attributes: [
+      "year",
+      [sequelize.fn("SUM", sequelize.col("carbon_value")), "total_carbon"],
+      [sequelize.fn("COUNT", sequelize.col("id")), "submission_count"],
+    ],
+    where: whereClause,
+    group: ["year"],
+    order: [["year", "ASC"]],
+  });
+};
+
+// Hook sebelum create untuk validasi
+CarbonSubmission.beforeCreate((instance, options) => {
+  // Pastikan carbon_value tidak negatif
+  if (instance.carbon_value < 0) {
+    instance.carbon_value = 0;
+  }
+
+  // Pastikan month dalam range yang benar
+  if (instance.month < 1 || instance.month > 12) {
+    instance.month = new Date().getMonth() + 1;
+  }
+
+  // Set default year jika tidak ada
+  if (!instance.year) {
+    instance.year = new Date().getFullYear();
+  }
+});
+
+module.exports = CarbonSubmission;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: models\index.js
+TYPE: JavaScript
+SIZE: 468 bytes (0.5 KB)
+────────────────────────────────────────────────────────────
+
+const UserPerusahaan = require('./UserPerusahaan');
+const Certification = require('./Certification');
+const CarbonSubmission = require('./carbonSubmission');
+const CsrSubmission = require('./CsrSubmission');
+const Notification = require('./Notification');
+const WorkshopRegistration = require('./WorkshopRegistration');
+
+module.exports = {
+  UserPerusahaan,
+  Certification,
+  CarbonSubmission,
+  CsrSubmission,
+  Notification,
+  WorkshopRegistration
+}; 
+
+
+==================== CONTROLLERS ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\authController.js
+TYPE: JavaScript
+SIZE: 2270 bytes (2.2 KB)
+────────────────────────────────────────────────────────────
+
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { UserPerusahaan } = require('../models');
+
+const registerUser = async (req, res) => {
+    const { companyName, email, password, phoneNumber, NIB, address } = req.body;
+    
+    // Validate password length
+    if (!password || password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long" });
+    }
+    
+    // Validate NIB
+    if (!NIB) {
+        return res.status(400).json({ message: "NIB cannot be empty" });
+    }
+    
+    if (NIB.length > 13) {
+        return res.status(400).json({ message: "NIB cannot exceed 13 characters" });
+    }
+    
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await UserPerusahaan.create({
+            nama_perusahaan: companyName,
+            email,
+            password: hashedPassword,
+            no_telp: phoneNumber,
+            NIB,
+            alamat: address
+        });
+        res.status(201).json({ message: "User registered successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Error registering user", error: err.message });
+    }
+};
+
+const loginUser = async (req, res) => {
+    const { NIB, password } = req.body;
+    try {
+        const user = await UserPerusahaan.findOne({ where: { NIB } });
+        if (!user) {
+            return res.status(401).json({ message: "Invalid NIB or password" });
+        }
+        if (!password || typeof password !== 'string' || !user.password || typeof user.password !== 'string') {
+            return res.status(500).json({ message: "Password is missing or invalid in request or database" });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Invalid NIB or password" });
+        }
+        const token = jwt.sign(
+            { id: user.id_perusahaan },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+        res.json({ token });
+    } catch (err) {
+        res.status(500).json({ message: "Error logging in", error: err.message });
+    }
+};
+
+module.exports = { registerUser, loginUser };
+
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\carbonSubmissionController.js
+TYPE: JavaScript
+SIZE: 10176 bytes (9.9 KB)
+────────────────────────────────────────────────────────────
+
+// controllers/carbonSubmissionController.js
+const multer = require("multer");
+const csv = require("csv-parser");
+const fs = require("fs");
+const path = require("path");
+const CarbonSubmission = require("../models/carbonSubmission");
+
+// Konfigurasi multer untuk upload file
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "../uploads");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const originalName = file.originalname.replace(/\s+/g, "_");
+    cb(null, `${timestamp}_${originalName}`);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === "text/csv" || file.originalname.endsWith(".csv")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only CSV files are allowed"), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+});
+
+class CarbonSubmissionController {
+  // Upload dan proses file CSV
+  static uploadCSV = upload.single("csvFile");
+
+  static async processCSVFile(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: "No CSV file uploaded",
+        });
+      }
+
+      const filePath = req.file.path;
+      const results = [];
+
+      // Baca dan parse CSV file
+      await new Promise((resolve, reject) => {
+        fs.createReadStream(filePath)
+          .pipe(csv())
+          .on("data", (data) => {
+            // Validasi dan clean data sesuai dengan CSV structure
+            const allowedTypes = [
+              "laporan_csr",
+              "sertifikasi_csr",
+              "data_emisi",
+              "dokumen_pendukung_lain",
+            ];
+            let docType = data.document_type
+              ? data.document_type.toString().trim()
+              : "data_emisi";
+            if (!allowedTypes.includes(docType)) docType = "data_emisi";
+
+            const cleanData = {
+              company_id: data.id_perusahaan
+                ? data.id_perusahaan.toString().trim()
+                : null,
+              year: parseInt(data.year) || new Date().getFullYear(),
+              month: parseInt(data.month) || new Date().getMonth() + 1,
+              carbon_value: parseFloat(data.carbon_value) || 0,
+              document_type: docType,
+              document_name: data.document_name
+                ? data.document_name.toString().trim()
+                : req.file.originalname,
+              document_path: data.document_path
+                ? data.document_path.toString().trim()
+                : req.file.path,
+              analysis: data.analysis ? data.analysis.toString().trim() : null,
+              created_at: new Date(),
+            };
+
+            // Validasi tambahan
+            if (cleanData.month < 1 || cleanData.month > 12) {
+              cleanData.month = new Date().getMonth() + 1;
+            }
+
+            if (cleanData.carbon_value < 0) {
+              cleanData.carbon_value = 0;
+            }
+
+            results.push(cleanData);
+          })
+          .on("end", resolve)
+          .on("error", reject);
+      });
+
+      if (results.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "No valid data found in CSV file",
+        });
+      }
+
+      // Simpan data ke database
+      const savedData = await CarbonSubmission.bulkCreate(results);
+
+      // Hitung total carbon footprint
+      const totalCarbon = results.reduce(
+        (sum, item) => sum + item.carbon_value,
+        0
+      );
+      const avgCarbon = totalCarbon / results.length;
+
+      res.status(201).json({
+        success: true,
+        message: "CSV file processed successfully",
+        data: {
+          totalRecords: savedData.length,
+          totalCarbonValue: totalCarbon,
+          averageCarbonValue: avgCarbon,
+          fileName: req.file.originalname,
+          processedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      console.error("Error processing CSV:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error processing CSV file",
+        error: error.message,
+      });
+    }
+  }
+
+  // Get semua data submissions
+  static async getAllSubmissions(req, res) {
+    try {
+      const { page = 1, limit = 10, year, month, company_id } = req.query;
+      const offset = (page - 1) * limit;
+
+      const whereClause = {};
+      if (year) whereClause.year = year;
+      if (month) whereClause.month = month;
+      if (company_id) whereClause.company_id = company_id;
+
+      const submissions = await CarbonSubmission.findAndCountAll({
+        where: whereClause,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        order: [["created_at", "DESC"]],
+      });
+
+      res.status(200).json({
+        success: true,
+        data: submissions.rows,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(submissions.count / limit),
+          totalItems: submissions.count,
+          itemsPerPage: parseInt(limit),
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching submissions:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching submissions",
+        error: error.message,
+      });
+    }
+  }
+
+  // Get carbon footprint analytics
+  static async getAnalytics(req, res) {
+    try {
+      const { year = new Date().getFullYear(), company_id } = req.query;
+
+      const whereClause = { year: parseInt(year) };
+      if (company_id) whereClause.company_id = company_id;
+
+      // Get monthly data untuk chart
+      const monthlyData = await CarbonSubmission.findAll({
+        attributes: [
+          "month",
+          [
+            CarbonSubmission.sequelize.fn(
+              "SUM",
+              CarbonSubmission.sequelize.col("carbon_value")
+            ),
+            "total_carbon",
+          ],
+          [
+            CarbonSubmission.sequelize.fn(
+              "COUNT",
+              CarbonSubmission.sequelize.col("id")
+            ),
+            "submission_count",
+          ],
+        ],
+        where: whereClause,
+        group: ["month"],
+        order: [["month", "ASC"]],
+      });
+
+      // Get total statistics
+      const totalStats = await CarbonSubmission.findOne({
+        attributes: [
+          [
+            CarbonSubmission.sequelize.fn(
+              "SUM",
+              CarbonSubmission.sequelize.col("carbon_value")
+            ),
+            "total_carbon",
+          ],
+          [
+            CarbonSubmission.sequelize.fn(
+              "AVG",
+              CarbonSubmission.sequelize.col("carbon_value")
+            ),
+            "avg_carbon",
+          ],
+          [
+            CarbonSubmission.sequelize.fn(
+              "COUNT",
+              CarbonSubmission.sequelize.col("id")
+            ),
+            "total_submissions",
+          ],
+        ],
+        where: whereClause,
+      });
+
+      // Format data untuk response
+      const chartData = Array.from({ length: 12 }, (_, i) => {
+        const month = i + 1;
+        const monthData = monthlyData.find((item) => item.month === month);
+        return {
+          month: month,
+          carbon_value: monthData
+            ? parseFloat(monthData.dataValues.total_carbon)
+            : 0,
+          submission_count: monthData
+            ? parseInt(monthData.dataValues.submission_count)
+            : 0,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          year: parseInt(year),
+          monthlyData: chartData,
+          totalStats: {
+            totalCarbon: parseFloat(totalStats.dataValues.total_carbon) || 0,
+            avgCarbon: parseFloat(totalStats.dataValues.avg_carbon) || 0,
+            totalSubmissions:
+              parseInt(totalStats.dataValues.total_submissions) || 0,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching analytics",
+        error: error.message,
+      });
+    }
+  }
+
+  // Delete submission
+  static async deleteSubmission(req, res) {
+    try {
+      const { id } = req.params;
+
+      const submission = await CarbonSubmission.findByPk(id);
+      if (!submission) {
+        return res.status(404).json({
+          success: false,
+          message: "Submission not found",
+        });
+      }
+
+      // Hapus file jika ada
+      if (submission.document_path && fs.existsSync(submission.document_path)) {
+        fs.unlinkSync(submission.document_path);
+      }
+
+      await submission.destroy();
+
+      res.status(200).json({
+        success: true,
+        message: "Submission deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error deleting submission:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error deleting submission",
+        error: error.message,
+      });
+    }
+  }
+
+  // Get submission by ID
+  static async getSubmissionById(req, res) {
+    try {
+      const { id } = req.params;
+
+      const submission = await CarbonSubmission.findByPk(id);
+      if (!submission) {
+        return res.status(404).json({
+          success: false,
+          message: "Submission not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        data: submission,
+      });
+    } catch (error) {
+      console.error("Error fetching submission:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching submission",
+        error: error.message,
+      });
+    }
+  }
+}
+
+module.exports = CarbonSubmissionController;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\certificationsController.js
+TYPE: JavaScript
+SIZE: 2924 bytes (2.9 KB)
+────────────────────────────────────────────────────────────
+
+const db = require('../config/db');
+const { Certification } = require('../models');
+
+// ✅ GET semua pengajuan sertifikasi milik user
+exports.getUserCertifications = (req, res) => {
+  const userId = req.userId;
+
+  const sql = "SELECT * FROM certifications WHERE user_id = ? ORDER BY submission_date DESC";
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching certifications:', err);
+      return res.status(500).json({ message: "Gagal mengambil data sertifikasi", error: err.message });
+    }
+
+    res.json({ data: results });
+  });
+};
+
+// ✅ GET detail satu pengajuan sertifikasi
+exports.getCertificationById = (req, res) => {
+  const userId = req.userId;
+  const id = req.params.id;
+
+  const sql = "SELECT * FROM certifications WHERE id = ? AND user_id = ?";
+  db.query(sql, [id, userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching certification:', err);
+      return res.status(500).json({ message: "Gagal mengambil detail sertifikasi", error: err.message });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Sertifikasi tidak ditemukan" });
+    }
+
+    res.json({ data: results[0] });
+  });
+};
+
+// ✅ POST ajukan sertifikasi baru
+exports.submitCertification = async (req, res) => {
+  const userId = req.userId;
+  const { name, description, credential_body, benefits, cost, supporting_documents } = req.body;
+
+  if (!name || !description || !credential_body || !benefits || !cost || !supporting_documents) {
+    return res.status(400).json({ message: "Semua field harus diisi" });
+  }
+
+  try {
+    const newCertification = await Certification.create({
+      user_id: userId,
+      name,
+      description,
+      credential_body,
+      benefits,
+      cost,
+      status: 'submitted',
+      submission_date: new Date(),
+      supporting_documents: JSON.stringify(supporting_documents)
+    });
+
+    res.status(201).json({ message: "Pengajuan sertifikasi berhasil", id: newCertification.id });
+  } catch (err) {
+    console.error('Error submitting certification:', err);
+    res.status(500).json({ message: "Gagal mengajukan sertifikasi", error: err.message });
+  }
+};
+
+// ✅ PUT untuk update status (opsional, misal admin)
+exports.updateStatus = (req, res) => {
+  const id = req.params.id;
+  const { status } = req.body;
+
+  if (!['submitted', 'in_review', 'approved', 'rejected'].includes(status)) {
+    return res.status(400).json({ message: "Status tidak valid" });
+  }
+
+  const sql = "UPDATE certifications SET status = ? WHERE id = ?";
+  db.query(sql, [status, id], (err, result) => {
+    if (err) {
+      console.error('Error updating status:', err);
+      return res.status(500).json({ message: "Gagal memperbarui status", error: err.message });
+    }
+
+    res.json({ message: "Status sertifikasi diperbarui" });
+  });
+};
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\csrController.js
+TYPE: JavaScript
+SIZE: 5275 bytes (5.2 KB)
+────────────────────────────────────────────────────────────
+
+const { CsrSubmission } = require('../models');
+const path = require('path');
+
+exports.submitCSR = async (req, res) => {
+  try {
+    // Validasi body request
+    if (!req.body || !req.body.user_id) {
+      return res.status(400).json({ 
+        message: 'Data tidak lengkap. user_id diperlukan.'
+      });
+    }
+
+    const {
+      user_id,
+      program_name,
+      category,
+      description,
+      location,
+      partner_name,
+      start_date,
+      end_date,
+      budget,
+      agreed
+    } = req.body;
+
+    // Debug output
+    console.log('Request Body:', req.body);
+    console.log('Files:', req.files);
+
+    // Fungsi untuk konversi format tanggal dari "DD MMM YYYY" ke "YYYY-MM-DD"
+    const convertDateFormat = (dateString) => {
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+          throw new Error('Invalid date format');
+        }
+        return date.toISOString().split('T')[0]; // Return YYYY-MM-DD
+      } catch (error) {
+        console.error('Date conversion error:', error);
+        throw new Error(`Invalid date format: ${dateString}`);
+      }
+    };
+
+    // Konversi budget ke number
+    const budgetNumber = parseFloat(budget.toString().replace(/[^\d.]/g, ''));
+    if (isNaN(budgetNumber)) {
+      return res.status(400).json({ 
+        message: 'Format budget tidak valid'
+      });
+    }
+
+    // Konversi tanggal
+    let convertedStartDate, convertedEndDate;
+    try {
+      convertedStartDate = convertDateFormat(start_date);
+      convertedEndDate = convertDateFormat(end_date);
+    } catch (error) {
+      return res.status(400).json({ 
+        message: `Error konversi tanggal: ${error.message}`
+      });
+    }
+
+    // Penanganan file dengan cara yang lebih aman (opsional untuk testing)
+    let proposal_url = null;
+    let legality_url = null;
+    
+    if (req.files) {
+      if (req.files['proposal'] && req.files['proposal'][0]) {
+        proposal_url = req.files['proposal'][0].path;
+      }
+      
+      if (req.files['legalitas'] && req.files['legalitas'][0]) {
+        legality_url = req.files['legalitas'][0].path;
+      }
+    }
+
+    console.log('Converted data:', {
+      user_id,
+      program_name,
+      category,
+      description,
+      location,
+      partner_name,
+      start_date: convertedStartDate,
+      end_date: convertedEndDate,
+      budget: budgetNumber,
+      agreed: agreed === true || agreed === 'true'
+    });
+
+    const newSubmission = await CsrSubmission.create({
+      user_id,
+      program_name,
+      category,
+      description,
+      location,
+      partner_name,
+      start_date: convertedStartDate,
+      end_date: convertedEndDate,
+      budget: budgetNumber,
+      proposal_url,
+      legality_url,
+      agreed: agreed === true || agreed === 'true',
+    });
+
+    res.status(201).json({ message: 'Pengajuan CSR berhasil dibuat', data: newSubmission });
+  } catch (err) {
+    console.error('Error submitting CSR:', err);
+    res.status(500).json({ message: 'Gagal membuat pengajuan CSR', error: err.message });
+  }
+};
+
+exports.getCSRDetail = async (req, res) => {
+  const { id } = req.params;
+  const csr = await CsrSubmission.findByPk(id);
+  if (!csr) return res.status(404).json({ message: 'CSR tidak ditemukan' });
+  res.json(csr);
+};
+
+exports.getAllCSR = async (req, res) => {
+  const list = await CsrSubmission.findAll();
+  res.json(list);
+};
+
+exports.getCSRHistory = async (req, res) => {
+  try {
+    const user_id = req.query.user_id;
+    if (!user_id) {
+      return res.status(400).json({ message: 'Parameter user_id diperlukan.' });
+    }
+
+    const submissions = await CsrSubmission.findAll({
+      where: { user_id },
+      order: [['start_date', 'DESC']]
+    });
+
+    res.json(submissions);
+  } catch (err) {
+    console.error('Error fetching CSR history:', err);
+    res.status(500).json({ message: 'Gagal mengambil riwayat CSR.' });
+  }
+};
+
+// NEW: detail salah satu riwayat CSR (cek juga agar hanya milik user itu)
+exports.getCSRHistoryDetail = async (req, res) => {
+  try {
+    const user_id = req.query.user_id;
+    const { id } = req.params;
+
+    if (!user_id) {
+      return res.status(400).json({ message: 'Parameter user_id diperlukan.' });
+    }
+
+    const submission = await CsrSubmission.findByPk(id);
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Riwayat CSR tidak ditemukan.' });
+    }
+
+    // Cek apakah submission milik user yang sesuai
+    // Konversi ke string untuk memastikan perbandingan yang benar
+    if (String(submission.user_id) !== String(user_id)) {
+      console.log('User ID mismatch:', { 
+        submissionUserId: submission.user_id, 
+        requestedUserId: user_id,
+        types: {
+          submissionUserIdType: typeof submission.user_id,
+          requestedUserIdType: typeof user_id
+        }
+      });
+      return res.status(403).json({ message: 'Anda tidak memiliki akses ke riwayat CSR ini.' });
+    }
+
+    res.json(submission);
+  } catch (err) {
+    console.error('Error fetching CSR history detail:', err);
+    res.status(500).json({ message: 'Gagal mengambil detail riwayat CSR.' });
+  }
+}; 
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\csrSummaryController.js
+TYPE: JavaScript
+SIZE: 2125 bytes (2.1 KB)
+────────────────────────────────────────────────────────────
+
+const CsrSubmission = require('../models/CsrSubmission');
+
+const formatRupiah = (angka) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0
+  }).format(angka);
+};
+
+const getCsrSummary = async (req, res) => {
+  try {
+    const submissions = await CsrSubmission.findAll();
+
+    let totalDana = 0;
+    let categoryMap = {}; // { [category]: { jumlah, total } }
+    let statusMap = {
+      selesai: 0,
+      progress: 0,
+      mendatang: 0
+    };
+
+    submissions.forEach(submission => {
+      const budget = Number(submission.budget) || 0;
+      const category = submission.category;
+      const status = submission.status;
+
+      // Total keseluruhan
+      totalDana += budget;
+
+      // Per kategori
+      if (!categoryMap[category]) {
+        categoryMap[category] = { jumlah: 0, total: 0 };
+      }
+      categoryMap[category].jumlah += 1;
+      categoryMap[category].total += budget;
+
+      // Per status
+      if (status === 'selesai') {
+        statusMap.selesai += budget;
+      } else if (status === 'progress') {
+        statusMap.progress += budget;
+      } else {
+        statusMap.mendatang += budget;
+      }
+    });
+
+    // Hitung persentase
+    Object.keys(categoryMap).forEach(category => {
+      const cat = categoryMap[category];
+      cat.persentase = ((cat.total / totalDana) * 100).toFixed(1);
+    });
+
+    res.json({
+      totalDana: formatRupiah(totalDana),
+      kategori: Object.entries(categoryMap).reduce((acc, [key, val]) => {
+        acc[key] = {
+          jumlah: val.jumlah,
+          total: formatRupiah(val.total),
+          persentase: val.persentase + "%"
+        };
+        return acc;
+      }, {}),
+      status: {
+        selesai: formatRupiah(statusMap.selesai),
+        progress: formatRupiah(statusMap.progress),
+        mendatang: formatRupiah(statusMap.mendatang)
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Gagal mengambil summary CSR" });
+  }
+};
+
+module.exports = { getCsrSummary };
+
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\notificationController.js
+TYPE: JavaScript
+SIZE: 2107 bytes (2.1 KB)
+────────────────────────────────────────────────────────────
+
+const Notification = require('../models/Notification');
+
+// Controller untuk fitur notifikasi
+const notificationController = {
+  // Mendapatkan semua notifikasi berdasarkan user_id
+  getNotifications: async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const notifications = await Notification.findByUserId(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error retrieving notifications:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan saat mengambil notifikasi' });
+    }
+  },
+
+  // Membuat notifikasi baru
+  createNotification: async (req, res) => {
+    try {
+      const { user_id, title, message } = req.body;
+      
+      // Validasi input
+      if (!user_id || !title || !message) {
+        return res.status(400).json({ message: 'user_id, title, dan message harus diisi' });
+      }
+
+      const newNotification = await Notification.create({ user_id, title, message });
+      res.status(201).json(newNotification);
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan saat membuat notifikasi' });
+    }
+  },
+
+  // Menandai notifikasi sebagai dibaca
+  markAsRead: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Notification.markAsRead(id);
+      res.json({ message: 'Notifikasi berhasil ditandai telah dibaca' });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan saat menandai notifikasi telah dibaca' });
+    }
+  },
+
+  // Menghapus notifikasi
+  deleteNotification: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Notification.delete(id);
+      res.json({ message: 'Notifikasi berhasil dihapus' });
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan saat menghapus notifikasi' });
+    }
+  }
+};
+
+module.exports = notificationController; 
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\profileController.js
+TYPE: JavaScript
+SIZE: 2983 bytes (2.9 KB)
+────────────────────────────────────────────────────────────
+
+const { UserPerusahaan } = require('../models');
+const bcrypt = require('bcryptjs');
+
+// Mendapatkan profil user
+exports.getUserProfile = async (req, res) => {
+  try {
+    const userId = req.userId; // Didapatkan dari middleware auth
+    const user = await UserPerusahaan.findByPk(userId, {
+      attributes: ['id_perusahaan', 'nama_perusahaan', 'email', 'no_telp', 'NIB', 'alamat']
+    });
+    if (!user) {
+      return res.status(404).json({ message: "Profil pengguna tidak ditemukan" });
+    }
+    res.json({ data: user });
+  } catch (err) {
+    console.error('Error in getUserProfile:', err);
+    res.status(500).json({ message: "Terjadi kesalahan saat mengambil profil" });
+  }
+};
+
+// Mengupdate profil user
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.userId; // Didapatkan dari middleware auth
+    const { companyName, email, phoneNumber, address } = req.body;
+
+    // Validasi input
+    if (!companyName || !email || !phoneNumber || !address) {
+      return res.status(400).json({ message: "Semua field harus diisi" });
+    }
+
+    const [updated] = await UserPerusahaan.update({
+      nama_perusahaan: companyName,
+      email,
+      no_telp: phoneNumber,
+      alamat: address
+    }, {
+      where: { id_perusahaan: userId }
+    });
+
+    if (updated === 0) {
+      return res.status(404).json({ message: "Profil pengguna tidak ditemukan" });
+    }
+
+    res.json({ message: "Profil berhasil diperbarui" });
+  } catch (err) {
+    console.error('Error in updateUserProfile:', err);
+    res.status(500).json({ message: "Terjadi kesalahan saat memperbarui profil" });
+  }
+};
+
+// Mengubah password
+exports.changePassword = async (req, res) => {
+  try {
+    const userId = req.userId; // Didapatkan dari middleware auth
+    const { currentPassword, newPassword } = req.body;
+
+    // Validasi input
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Password lama dan baru harus diisi" });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: "Password baru minimal 8 karakter" });
+    }
+
+    // Ambil data user
+    const user = await UserPerusahaan.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Pengguna tidak ditemukan" });
+    }
+
+    // Verifikasi password lama
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Password lama tidak sesuai" });
+    }
+
+    // Hash password baru
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await UserPerusahaan.update({ password: hashedPassword }, { where: { id_perusahaan: userId } });
+    res.json({ message: "Password berhasil diperbarui" });
+  } catch (err) {
+    console.error('Error in changePassword:', err);
+    res.status(500).json({ message: "Terjadi kesalahan saat mengubah password" });
+  }
+}; 
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\workshopController.js
+TYPE: JavaScript
+SIZE: 943 bytes (0.9 KB)
+────────────────────────────────────────────────────────────
+
+const WorkshopRegistration = require('../models/WorkshopRegistration');
+
+exports.registerWorkshop = async (req, res) => {
+  const { workshop_id, company_name, email } = req.body;
+  const file = req.file;
+  const filePath = file ? file.path : null;
+
+  if (!workshop_id || !company_name || !email) {
+    return res.status(400).json({
+      message: 'Data tidak lengkap. workshop_id, company_name, dan email diperlukan.'
+    });
+  }
+
+  try {
+    const registration = await WorkshopRegistration.create({
+      workshop_id,
+      company_name,
+      email,
+      file_path: filePath,
+      status: 'pending',
+      created_at: new Date()
+    });
+
+    res.status(201).json({
+      message: 'Pendaftaran Workshop Berhasil',
+      data: registration
+    });
+  } catch (err) {
+    console.error('DB Error:', err);
+    res.status(500).json({ message: 'Gagal menyimpan pendaftaran workshop', error: err.message });
+  }
+};
+
+
+
+==================== ROUTES ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\authRoutes.js
+TYPE: JavaScript
+SIZE: 257 bytes (0.3 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const { registerUser, loginUser } = require('../controllers/authController'); 
+
+const router = express.Router();
+
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+
+module.exports = router;
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\carbonSubmissions.js
+TYPE: JavaScript
+SIZE: 12038 bytes (11.8 KB)
+────────────────────────────────────────────────────────────
+
+// routes/carbonSubmissions.js
+const express = require("express");
+const router = express.Router();
+const { Op } = require("sequelize");
+const CarbonSubmissionController = require("../controllers/carbonSubmissionController");
+
+// Route untuk upload dan proses CSV file
+router.post(
+  "/upload-csv",
+  CarbonSubmissionController.uploadCSV,
+  CarbonSubmissionController.processCSVFile
+);
+
+// Route untuk mendapatkan semua submissions dengan pagination dan filter
+router.get("/submissions", CarbonSubmissionController.getAllSubmissions);
+
+// Route untuk mendapatkan analytics data
+router.get("/analytics", CarbonSubmissionController.getAnalytics);
+
+// Route untuk mendapatkan submission by ID
+router.get("/submissions/:id", CarbonSubmissionController.getSubmissionById);
+
+// Route untuk delete submission
+router.delete("/submissions/:id", CarbonSubmissionController.deleteSubmission);
+
+// Route untuk mendapatkan KPI data by type
+router.get("/kpi/:kpiType", async (req, res) => {
+  try {
+    const { kpiType } = req.params;
+    const { company_id, year } = req.query;
+
+    // Debug logging
+    console.log("KPI Endpoint called with:", { kpiType, company_id, year });
+
+    // Validate kpiType
+    if (kpiType !== "carbon_footprint") {
+      return res.status(404).json({
+        success: false,
+        message: `Unsupported KPI type: ${kpiType}. Currently only 'carbon_footprint' is supported.`,
+      });
+    }
+
+    const CarbonSubmission = require("../models/carbonSubmission");
+
+    // Smart Year Detection: Get latest year with data if no year specified
+    let actualYear;
+    if (year) {
+      actualYear = parseInt(year);
+    } else {
+      const availableYears = await CarbonSubmission.findAll({
+        attributes: [
+          [
+            CarbonSubmission.sequelize.fn(
+              "DISTINCT",
+              CarbonSubmission.sequelize.col("year")
+            ),
+            "year",
+          ],
+        ],
+        order: [["year", "DESC"]],
+      });
+
+      actualYear =
+        availableYears.length > 0
+          ? availableYears[0].dataValues.year
+          : new Date().getFullYear();
+      console.log(
+        "Available years in database:",
+        availableYears.map((y) => y.dataValues.year)
+      );
+      console.log("Using year for calculation:", actualYear);
+    }
+
+    // Base where clause for current year data (monthly)
+    const monthlyWhereClause = { year: actualYear };
+    if (company_id && company_id !== "undefined") {
+      monthlyWhereClause.company_id = company_id;
+    }
+
+    // 1. Get yearly data (monthly aggregation for specified year)
+    const monthlyData = await CarbonSubmission.findAll({
+      attributes: [
+        "month",
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_carbon",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "COUNT",
+            CarbonSubmission.sequelize.col("id")
+          ),
+          "submission_count",
+        ],
+      ],
+      where: monthlyWhereClause,
+      group: ["month"],
+      order: [["month", "ASC"]],
+    });
+
+    console.log(
+      "Monthly data query results:",
+      monthlyData.length,
+      "months found"
+    );
+
+    // Format yearly data (ensure all 12 months are included)
+    const yearly_data = Array.from({ length: 12 }, (_, i) => {
+      const month = i + 1;
+      const monthData = monthlyData.find((item) => item.month === month);
+      return {
+        month: month,
+        value: monthData ? parseFloat(monthData.dataValues.total_carbon) : 0,
+        submission_count: monthData
+          ? parseInt(monthData.dataValues.submission_count)
+          : 0,
+      };
+    });
+
+    // 2. Get multi-year data (last 5 years including current year)
+    const startYear = actualYear - 4; // 5 years total including current
+    const multiYearWhereClause = {
+      year: {
+        [Op.gte]: startYear,
+        [Op.lte]: actualYear,
+      },
+    };
+    if (company_id && company_id !== "undefined") {
+      multiYearWhereClause.company_id = company_id;
+    }
+
+    const yearlyAggregation = await CarbonSubmission.findAll({
+      attributes: [
+        "year",
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_carbon",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "COUNT",
+            CarbonSubmission.sequelize.col("id")
+          ),
+          "submission_count",
+        ],
+      ],
+      where: multiYearWhereClause,
+      group: ["year"],
+      order: [["year", "ASC"]],
+    });
+
+    // Format multi-year data (ensure all 5 years are included)
+    const multi_year_data = Array.from({ length: 5 }, (_, i) => {
+      const targetYear = startYear + i;
+      const yearData = yearlyAggregation.find(
+        (item) => item.year === targetYear
+      );
+      return {
+        year: targetYear,
+        total_value: yearData
+          ? parseFloat(yearData.dataValues.total_carbon)
+          : 0,
+        submission_count: yearData
+          ? parseInt(yearData.dataValues.submission_count)
+          : 0,
+      };
+    });
+
+    // 3. Get statistics for the specified year
+    const statistics = await CarbonSubmission.findOne({
+      attributes: [
+        [
+          CarbonSubmission.sequelize.fn(
+            "AVG",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "avg_value",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "MIN",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "min_value",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "MAX",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "max_value",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_value",
+        ],
+      ],
+      where: monthlyWhereClause,
+    });
+
+    // Format statistics
+    const statsData = statistics?.dataValues || {};
+    const formattedStats = {
+      average_value: parseFloat(statsData.avg_value) || 0,
+      min_value: parseFloat(statsData.min_value) || 0,
+      max_value: parseFloat(statsData.max_value) || 0,
+      total_value: parseFloat(statsData.total_value) || 0,
+    };
+
+    console.log("Statistics results:", formattedStats);
+
+    // 4. Generate analysis
+    const totalSubmissions = yearly_data.reduce(
+      (sum, month) => sum + month.submission_count,
+      0
+    );
+    const analysis = `Analisis carbon footprint untuk tahun ${actualYear}. Total emisi: ${formattedStats.total_value.toFixed(
+      1
+    )} kg CO₂e dengan rata-rata ${formattedStats.average_value.toFixed(
+      1
+    )} kg CO₂e per submission. Total ${totalSubmissions} submission tercatat.`;
+
+    // Final response
+    res.status(200).json({
+      success: true,
+      data: {
+        kpi_type: "carbon_footprint",
+        title: "Carbon Footprint",
+        unit: "kg CO₂e",
+        yearly_data: yearly_data,
+        multi_year_data: multi_year_data,
+        statistics: formattedStats,
+        analysis: analysis,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching KPI data:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching KPI data",
+      error: error.message,
+    });
+  }
+});
+
+// Route untuk mendapatkan dashboard data (kombinasi analytics dan recent submissions)
+router.get("/dashboard", async (req, res) => {
+  try {
+    const { year, company_id } = req.query;
+
+    console.log("Dashboard endpoint called with:", { year, company_id });
+
+    const CarbonSubmission = require("../models/carbonSubmission");
+
+    // Smart Year Detection: Get latest year with data if no year specified
+    let actualYear;
+    if (year) {
+      actualYear = parseInt(year);
+    } else {
+      const availableYears = await CarbonSubmission.findAll({
+        attributes: [
+          [
+            CarbonSubmission.sequelize.fn(
+              "DISTINCT",
+              CarbonSubmission.sequelize.col("year")
+            ),
+            "year",
+          ],
+        ],
+        order: [["year", "DESC"]],
+      });
+
+      actualYear =
+        availableYears.length > 0
+          ? availableYears[0].dataValues.year
+          : new Date().getFullYear();
+      console.log(
+        "Available years in database:",
+        availableYears.map((y) => y.dataValues.year)
+      );
+      console.log("Using year for dashboard calculation:", actualYear);
+    }
+
+    // Simulate controller calls (dalam implementasi nyata, ekstrak logic ke service)
+    const whereClause = { year: parseInt(actualYear) };
+    if (company_id && company_id !== "undefined") {
+      whereClause.company_id = company_id;
+    }
+
+    console.log("Dashboard whereClause:", whereClause);
+
+    // Get analytics
+    const monthlyData = await CarbonSubmission.findAll({
+      attributes: [
+        "month",
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_carbon",
+        ],
+      ],
+      where: whereClause,
+      group: ["month"],
+      order: [["month", "ASC"]],
+    });
+
+    const totalStats = await CarbonSubmission.findOne({
+      attributes: [
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_carbon",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "COUNT",
+            CarbonSubmission.sequelize.col("id")
+          ),
+          "total_submissions",
+        ],
+      ],
+      where: whereClause,
+    });
+
+    console.log("Dashboard query results:", {
+      monthlyDataCount: monthlyData.length,
+      totalStats: totalStats?.dataValues,
+    });
+
+    // Get recent submissions
+    const recentSubmissionsWhere =
+      company_id && company_id !== "undefined" ? { company_id } : {};
+    const recentSubmissions = await CarbonSubmission.findAll({
+      where: recentSubmissionsWhere,
+      limit: 5,
+      order: [["created_at", "DESC"]],
+    });
+
+    // Format chart data
+    const chartData = Array.from({ length: 12 }, (_, i) => {
+      const month = i + 1;
+      const monthData = monthlyData.find((item) => item.month === month);
+      return {
+        month: month,
+        carbon_value: monthData
+          ? parseFloat(monthData.dataValues.total_carbon)
+          : 0,
+      };
+    });
+
+    const finalTotalCarbon =
+      parseFloat(totalStats?.dataValues?.total_carbon) || 0;
+    const finalTotalSubmissions =
+      parseInt(totalStats?.dataValues?.total_submissions) || 0;
+
+    console.log("Final dashboard totals:", {
+      finalTotalCarbon,
+      finalTotalSubmissions,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        analytics: {
+          year: parseInt(actualYear),
+          monthlyData: chartData,
+          totalStats: {
+            totalCarbon: finalTotalCarbon,
+            totalSubmissions: finalTotalSubmissions,
+          },
+        },
+        recentSubmissions: recentSubmissions,
+        summary: {
+          currentYearTotal: finalTotalCarbon,
+          submissionCount: finalTotalSubmissions,
+          lastUpdated: new Date(),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching dashboard data",
+      error: error.message,
+    });
+  }
+});
+
+module.exports = router;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\certificationRoutes.js
+TYPE: JavaScript
+SIZE: 731 bytes (0.7 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const router = express.Router();
+const controller = require('../controllers/certificationsController');
+const verifyToken = require('../middleware/authMiddleware');
+
+// Get semua pengajuan sertifikasi milik user
+router.get('/', verifyToken, controller.getUserCertifications);
+
+// Get detail satu pengajuan sertifikasi
+router.get('/:id', verifyToken, controller.getCertificationById);
+
+// Ajukan sertifikasi baru
+router.post('/apply', verifyToken, controller.submitCertification);
+
+// Update status (opsional)
+router.put('/:id/status', controller.updateStatus); // bisa diberi verifyToken jika hanya admin
+// bisa juga ditambahkan role check jika perlu
+module.exports = router;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\csrRoutes.js
+TYPE: JavaScript
+SIZE: 672 bytes (0.7 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const router = express.Router();
+const csrController = require('../controllers/csrController');
+const { uploadCSRFiles } = require('../middleware/upload');
+const { getCsrSummary } = require('../controllers/csrSummaryController');
+
+// Endpoint untuk melihat riwayat CSR (list)
+router.get('/history', csrController.getCSRHistory);
+
+// Endpoint untuk melihat detail 1 CSR dari riwayat
+router.get('/history/:id', csrController.getCSRHistoryDetail);
+
+// Endpoint existing untuk submit baru
+router.post('/ajukan', uploadCSRFiles, csrController.submitCSR);
+
+router.get('/summary', getCsrSummary);
+
+
+module.exports = router;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\notificationRoutes.js
+TYPE: JavaScript
+SIZE: 639 bytes (0.6 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const router = express.Router();
+const notificationController = require('../controllers/notificationController');
+
+// Route untuk mendapatkan semua notifikasi berdasarkan user_id
+router.get('/:userId', notificationController.getNotifications);
+
+// Route untuk membuat notifikasi baru
+router.post('/', notificationController.createNotification);
+
+// Route untuk menandai notifikasi sebagai dibaca
+router.patch('/:id/read', notificationController.markAsRead);
+
+// Route untuk menghapus notifikasi
+router.delete('/:id', notificationController.deleteNotification);
+
+module.exports = router; 
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\profileRoutes.js
+TYPE: JavaScript
+SIZE: 497 bytes (0.5 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const { getUserProfile, updateUserProfile, changePassword } = require('../controllers/profileController');
+const verifyToken = require('../middleware/authMiddleware');
+
+const router = express.Router();
+
+// Middleware autentikasi untuk semua routes
+router.use(verifyToken);
+
+// Route untuk profil
+router.get('/me', getUserProfile);
+router.put('/update', updateUserProfile);
+router.put('/change-password', changePassword);
+
+module.exports = router; 
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\workshopRoutes.js
+TYPE: JavaScript
+SIZE: 366 bytes (0.4 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const router = express.Router();
+const workshopController = require('../controllers/workshopController');
+const uploadExcel = require('../middleware/uploadExcel');
+
+// POST /workshops/register
+router.post('/register', uploadExcel.single('daftar_karyawan'), workshopController.registerWorkshop);
+
+module.exports = router;
+
+
+
+==================== MIDDLEWARE ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: middleware\authMiddleware.js
+TYPE: JavaScript
+SIZE: 834 bytes (0.8 KB)
+────────────────────────────────────────────────────────────
+
+const jwt = require('jsonwebtoken');
+
+// modul untuk menghasilkan dan memverifikasi JWT
+
+// memverifikasi token dalam request
+const verifyToken = (req, res, next) => {
+    const token = req.headers["authorization"];
+
+    if(!token) return res.status(403).json({ message: "Token Required" });
+    
+    const tokenParts = token.split(" ");
+    if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
+        return res.status(403).json({ message: "Invalid token format" });
+    }
+
+    jwt.verify(tokenParts[1], process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: "Invalid token" });
+        }
+        req.user = decoded;
+        req.userId = decoded.id; // Menyediakan userId ke request
+        next();
+    });
+};
+
+module.exports = verifyToken;
+
+
+────────────────────────────────────────────────────────────
+FILE: middleware\upload.js
+TYPE: JavaScript
+SIZE: 885 bytes (0.9 KB)
+────────────────────────────────────────────────────────────
+
+const multer = require('multer');
+const path = require('path');
+
+// Storage config
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Folder tempat simpan file
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const uniqueName = `${Date.now()}-${file.fieldname}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+
+// File filter opsional
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'application/pdf') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PDF files are allowed'), false);
+  }
+};
+
+const upload = multer({ storage, fileFilter });
+
+// Export: middleware untuk 2 file
+const uploadCSRFiles = upload.fields([
+  { name: 'proposal', maxCount: 1 },
+  { name: 'legalitas', maxCount: 1 }
+]);
+
+module.exports = { uploadCSRFiles };
+
+
+
+────────────────────────────────────────────────────────────
+FILE: middleware\uploadExcel.js
+TYPE: JavaScript
+SIZE: 782 bytes (0.8 KB)
+────────────────────────────────────────────────────────────
+
+const multer = require('multer');
+const path = require('path');
+
+// Filter hanya izinkan .xls, .xlsx, dan .csv
+const fileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (ext === '.xls' || ext === '.xlsx' || ext === '.csv') {
+    cb(null, true);
+  } else {
+    cb(new Error('Hanya file Excel atau CSV yang diperbolehkan'));
+  }
+};
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/workshop/');
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    cb(null, `${timestamp}-${file.fieldname}${ext}`);
+  }
+});
+
+const uploadExcel = multer({ storage, fileFilter });
+
+module.exports = uploadExcel;
+
+
+
+==================== DOCUMENTATION ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: README-notification.md
+TYPE: Markdown
+SIZE: 3947 bytes (3.9 KB)
+────────────────────────────────────────────────────────────
+
+# Dokumentasi API Notifikasi
+
+API notifikasi ini dibuat untuk mengelola notifikasi pengguna dalam aplikasi TumbuhNyata.
+
+## Persiapan Database
+
+Sebelum menggunakan API, buat tabel notifikasi di database MySQL dengan menjalankan query yang ada di file `config/notification_schema.sql`:
+
+```sql
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id),
+  INDEX idx_created_at (created_at)
+);
+```
+
+## Endpoints API
+
+### 1. Mendapatkan Notifikasi Pengguna
+
+- **Endpoint:** `GET /notifications/:userId`
+- **Deskripsi:** Mengambil semua notifikasi untuk pengguna tertentu
+- **Parameter URL:** 
+  - `userId` - ID pengguna yang ingin diambil notifikasinya
+- **Response:** 
+  ```json
+  [
+    {
+      "id": 1,
+      "user_id": "user123",
+      "title": "Selamat Datang!",
+      "message": "Terima kasih telah bergabung!",
+      "is_read": false,
+      "created_at": "2023-04-27T10:00:00Z"
+    },
+    ...
+  ]
+  ```
+
+### 2. Membuat Notifikasi Baru
+
+- **Endpoint:** `POST /notifications`
+- **Deskripsi:** Membuat notifikasi baru
+- **Body Request:**
+  ```json
+  {
+    "user_id": "user123",
+    "title": "Selamat Datang!",
+    "message": "Terima kasih telah bergabung!"
+  }
+  ```
+- **Response:** 
+  ```json
+  {
+    "id": 1,
+    "user_id": "user123",
+    "title": "Selamat Datang!",
+    "message": "Terima kasih telah bergabung!",
+    "is_read": false,
+    "created_at": "2023-04-27T10:00:00Z"
+  }
+  ```
+
+### 3. Menandai Notifikasi sebagai Dibaca
+
+- **Endpoint:** `PATCH /notifications/:id/read`
+- **Deskripsi:** Menandai notifikasi sebagai telah dibaca
+- **Parameter URL:** 
+  - `id` - ID notifikasi yang ingin ditandai telah dibaca
+- **Response:** 
+  ```json
+  {
+    "message": "Notifikasi berhasil ditandai telah dibaca"
+  }
+  ```
+
+### 4. Menghapus Notifikasi
+
+- **Endpoint:** `DELETE /notifications/:id`
+- **Deskripsi:** Menghapus notifikasi
+- **Parameter URL:** 
+  - `id` - ID notifikasi yang ingin dihapus
+- **Response:** 
+  ```json
+  {
+    "message": "Notifikasi berhasil dihapus"
+  }
+  ```
+
+## Contoh Penggunaan API dari Android
+
+Berikut contoh kode Kotlin untuk mengintegrasikan API notifikasi ini dengan aplikasi Android:
+
+```kotlin
+// Model Notifikasi
+data class Notification(
+    val id: Int,
+    val user_id: String,
+    val title: String,
+    val message: String,
+    val is_read: Boolean,
+    val created_at: String
+)
+
+// Interface API dengan Retrofit
+interface NotificationApi {
+    @GET("notifications/{userId}")
+    suspend fun getNotifications(@Path("userId") userId: String): List<Notification>
+    
+    @PATCH("notifications/{id}/read")
+    suspend fun markAsRead(@Path("id") id: Int): Response<Any>
+}
+
+// Penggunaan dalam ViewModel
+class NotificationViewModel(private val api: NotificationApi) : ViewModel() {
+    private val _notifications = MutableLiveData<List<Notification>>()
+    val notifications: LiveData<List<Notification>> = _notifications
+    
+    fun loadNotifications(userId: String) {
+        viewModelScope.launch {
+            try {
+                val result = api.getNotifications(userId)
+                _notifications.value = result
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+    
+    fun markAsRead(id: Int) {
+        viewModelScope.launch {
+            try {
+                api.markAsRead(id)
+                // Update local data
+                _notifications.value = _notifications.value?.map {
+                    if (it.id == id) it.copy(is_read = true) else it
+                }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+}
+``` 
+
+
+==================== DATABASE SCRIPTS ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: config\notification_schema.sql
+TYPE: SQL
+SIZE: 375 bytes (0.4 KB)
+────────────────────────────────────────────────────────────
+
+-- Buat tabel notifications jika belum ada
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id),
+  INDEX idx_created_at (created_at)
+); 
+
+
+==================== OTHER FILES ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: codebase_to_txt.py
+TYPE: Python
+SIZE: 12638 bytes (12.3 KB)
+────────────────────────────────────────────────────────────
+
+#!/usr/bin/env python3
+"""
+Codebase to Text Converter for NotebookLM
+This script converts an entire codebase into a comprehensive text file
+that can be easily understood by NotebookLM or other AI tools.
+"""
+
+import os
+import fnmatch
+from pathlib import Path
+from datetime import datetime
+
+
+def should_ignore_file(file_path, ignore_patterns):
+    """Check if a file should be ignored based on patterns."""
+    file_name = os.path.basename(file_path)
+    file_path_str = str(file_path)
+    
+    for pattern in ignore_patterns:
+        if fnmatch.fnmatch(file_name, pattern) or fnmatch.fnmatch(file_path_str, pattern):
+            return True
+    return False
+
+
+def should_ignore_directory(dir_path, ignore_dirs):
+    """Check if a directory should be ignored."""
+    dir_name = os.path.basename(dir_path)
+    return dir_name in ignore_dirs
+
+
+def get_file_type(file_path):
+    """Determine file type based on extension."""
+    ext = Path(file_path).suffix.lower()
+    
+    type_mapping = {
+        '.js': 'JavaScript',
+        '.json': 'JSON',
+        '.md': 'Markdown',
+        '.txt': 'Text',
+        '.sql': 'SQL',
+        '.py': 'Python',
+        '.env': 'Environment',
+        '.gitignore': 'Git Ignore',
+        '.yml': 'YAML',
+        '.yaml': 'YAML',
+        '.xml': 'XML',
+        '.html': 'HTML',
+        '.css': 'CSS',
+        '.scss': 'SCSS',
+        '.ts': 'TypeScript',
+        '.tsx': 'TypeScript JSX',
+        '.jsx': 'JavaScript JSX',
+        '.php': 'PHP',
+        '.java': 'Java',
+        '.cpp': 'C++',
+        '.c': 'C',
+        '.h': 'C Header',
+        '.go': 'Go',
+        '.rs': 'Rust',
+        '.rb': 'Ruby',
+        '.kt': 'Kotlin',
+        '.swift': 'Swift',
+        '.dart': 'Dart',
+        '.vue': 'Vue',
+        '.svelte': 'Svelte',
+        '.dockerfile': 'Dockerfile',
+        '.sh': 'Shell Script',
+        '.bat': 'Batch Script',
+        '.ps1': 'PowerShell',
+    }
+    
+    return type_mapping.get(ext, 'Unknown')
+
+
+def read_file_safely(file_path):
+    """Read file content safely with encoding detection."""
+    encodings = ['utf-8', 'utf-8-sig', 'latin-1', 'cp1252', 'iso-8859-1']
+    
+    for encoding in encodings:
+        try:
+            with open(file_path, 'r', encoding=encoding) as f:
+                return f.read()
+        except UnicodeDecodeError:
+            continue
+        except Exception as e:
+            return f"Error reading file: {str(e)}"
+    
+    return "Could not read file - encoding issues"
+
+
+def analyze_codebase_structure(root_path, ignore_dirs, ignore_patterns):
+    """Analyze the codebase structure."""
+    structure = {}
+    file_counts = {}
+    
+    for root, dirs, files in os.walk(root_path):
+        # Remove ignored directories
+        dirs[:] = [d for d in dirs if not should_ignore_directory(os.path.join(root, d), ignore_dirs)]
+        
+        rel_root = os.path.relpath(root, root_path)
+        if rel_root == '.':
+            rel_root = 'root'
+        
+        structure[rel_root] = []
+        
+        for file in files:
+            file_path = os.path.join(root, file)
+            if not should_ignore_file(file_path, ignore_patterns):
+                file_type = get_file_type(file_path)
+                structure[rel_root].append({
+                    'name': file,
+                    'type': file_type,
+                    'size': os.path.getsize(file_path)
+                })
+                
+                # Count file types
+                file_counts[file_type] = file_counts.get(file_type, 0) + 1
+    
+    return structure, file_counts
+
+
+def convert_codebase_to_text(root_path, output_file='codebase_documentation.txt'):
+    """Convert entire codebase to a single text file."""
+    
+    # Files and directories to ignore
+    ignore_dirs = {
+        'node_modules', '.git', '__pycache__', '.pytest_cache', 
+        'dist', 'build', '.next', '.nuxt', 'target', 'bin', 'obj',
+        '.vscode', '.idea', 'vendor', 'coverage', '.nyc_output',
+        'uploads', 'logs', 'tmp', 'temp', '.cache'
+    }
+    
+    ignore_patterns = [
+        '*.log', '*.tmp', '*.temp', '*.cache', '*.pid', '*.lock',
+        '*.stackdump', 'package-lock.json', 'yarn.lock', '*.min.js',
+        '*.min.css', '*.map', '*.exe', '*.dll', '*.so', '*.dylib',
+        '*.zip', '*.tar.gz', '*.rar', '*.7z', '*.pdf', '*.doc',
+        '*.docx', '*.xls', '*.xlsx', '*.ppt', '*.pptx', '*.jpg',
+        '*.jpeg', '*.png', '*.gif', '*.svg', '*.ico', '*.mp3',
+        '*.mp4', '*.avi', '*.mov', '*.wav', '*.flac'
+    ]
+    
+    print(f"🔍 Analyzing codebase structure...")
+    structure, file_counts = analyze_codebase_structure(root_path, ignore_dirs, ignore_patterns)
+    
+    print(f"📝 Converting codebase to text file: {output_file}")
+    
+    with open(output_file, 'w', encoding='utf-8') as out_file:
+        # Write header
+        out_file.write("=" * 80 + "\n")
+        out_file.write("CODEBASE DOCUMENTATION FOR NOTEBOOKLM\n")
+        out_file.write("=" * 80 + "\n")
+        out_file.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        out_file.write(f"Project root: {os.path.abspath(root_path)}\n")
+        out_file.write("=" * 80 + "\n\n")
+        
+        # Write project overview
+        out_file.write("PROJECT OVERVIEW\n")
+        out_file.write("-" * 40 + "\n")
+        out_file.write("This appears to be a TumbuhNyata Backend API project - a Node.js/Express application\n")
+        out_file.write("for managing CSR (Corporate Social Responsibility), carbon emissions tracking,\n")
+        out_file.write("certifications, workshops, and notifications for companies.\n\n")
+        
+        # Write file statistics
+        out_file.write("FILE STATISTICS\n")
+        out_file.write("-" * 40 + "\n")
+        total_files = sum(file_counts.values())
+        out_file.write(f"Total files processed: {total_files}\n\n")
+        
+        for file_type, count in sorted(file_counts.items()):
+            out_file.write(f"{file_type:20}: {count:3} files\n")
+        out_file.write("\n")
+        
+        # Write directory structure
+        out_file.write("DIRECTORY STRUCTURE\n")
+        out_file.write("-" * 40 + "\n")
+        for directory, files in sorted(structure.items()):
+            if files:  # Only show directories with files
+                out_file.write(f"📁 {directory}/\n")
+                for file_info in sorted(files, key=lambda x: x['name']):
+                    size_kb = file_info['size'] / 1024
+                    out_file.write(f"   📄 {file_info['name']} ({file_info['type']}, {size_kb:.1f} KB)\n")
+                out_file.write("\n")
+        
+        out_file.write("\n" + "=" * 80 + "\n")
+        out_file.write("COMPLETE SOURCE CODE\n")
+        out_file.write("=" * 80 + "\n\n")
+        
+        # Process files by category for better organization
+        categories = {
+            'Configuration & Setup': ['package.json', '.env', '.gitignore', 'app.js'],
+            'Database Models': [],
+            'Controllers': [],
+            'Routes': [],
+            'Middleware': [],
+            'Documentation': ['README.md', 'README-notification.md'],
+            'Database Scripts': [],
+            'Other Files': []
+        }
+        
+        # Walk through files and categorize them
+        processed_files = set()
+        
+        for root, dirs, files in os.walk(root_path):
+            # Remove ignored directories
+            dirs[:] = [d for d in dirs if not should_ignore_directory(os.path.join(root, d), ignore_dirs)]
+            
+            for file in files:
+                file_path = os.path.join(root, file)
+                rel_path = os.path.relpath(file_path, root_path)
+                
+                if should_ignore_file(file_path, ignore_patterns):
+                    continue
+                
+                # Categorize files
+                if file in categories['Configuration & Setup']:
+                    categories['Configuration & Setup'].append(rel_path)
+                elif 'models' in rel_path:
+                    categories['Database Models'].append(rel_path)
+                elif 'controllers' in rel_path:
+                    categories['Controllers'].append(rel_path)
+                elif 'routes' in rel_path:
+                    categories['Routes'].append(rel_path)
+                elif 'middleware' in rel_path:
+                    categories['Middleware'].append(rel_path)
+                elif file.endswith('.md'):
+                    categories['Documentation'].append(rel_path)
+                elif file.endswith('.sql'):
+                    categories['Database Scripts'].append(rel_path)
+                else:
+                    categories['Other Files'].append(rel_path)
+        
+        # Write files by category
+        for category, file_list in categories.items():
+            if not file_list:
+                continue
+                
+            out_file.write(f"\n{'=' * 20} {category.upper()} {'=' * 20}\n\n")
+            
+            # Remove duplicates and sort
+            unique_files = list(set(file_list))
+            unique_files.sort()
+            
+            for rel_file_path in unique_files:
+                if rel_file_path in categories['Configuration & Setup'][:4]:  # Skip the added ones
+                    continue
+                    
+                full_file_path = os.path.join(root_path, rel_file_path)
+                
+                if not os.path.exists(full_file_path):
+                    continue
+                    
+                file_type = get_file_type(full_file_path)
+                file_size = os.path.getsize(full_file_path)
+                
+                out_file.write(f"\n{'─' * 60}\n")
+                out_file.write(f"FILE: {rel_file_path}\n")
+                out_file.write(f"TYPE: {file_type}\n")
+                out_file.write(f"SIZE: {file_size} bytes ({file_size/1024:.1f} KB)\n")
+                out_file.write(f"{'─' * 60}\n\n")
+                
+                # Read and write file content
+                content = read_file_safely(full_file_path)
+                
+                if content.strip():
+                    out_file.write(content)
+                    out_file.write("\n\n")
+                else:
+                    out_file.write("[Empty file or could not read content]\n\n")
+                
+                processed_files.add(rel_file_path)
+        
+        # Write summary
+        out_file.write("\n" + "=" * 80 + "\n")
+        out_file.write("SUMMARY\n")
+        out_file.write("=" * 80 + "\n")
+        out_file.write(f"Total files processed: {len(processed_files)}\n")
+        out_file.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        out_file.write("\nThis documentation contains the complete source code of the TumbuhNyata Backend API,\n")
+        out_file.write("including all models, controllers, routes, middleware, and configuration files.\n")
+        out_file.write("The project is a comprehensive solution for corporate sustainability management.\n")
+    
+    print(f"✅ Conversion complete! Output saved to: {output_file}")
+    print(f"📊 Processed {len(processed_files)} files")
+    return output_file
+
+
+def main():
+    """Main function to run the converter."""
+    print("🚀 TumbuhNyata Codebase to Text Converter")
+    print("=" * 50)
+    
+    # Get current directory as default
+    current_dir = os.getcwd()
+    print(f"Current directory: {current_dir}")
+    
+    # Allow user to specify different directory
+    root_path = input(f"Enter project root path (or press Enter to use current directory): ").strip()
+    if not root_path:
+        root_path = current_dir
+    
+    if not os.path.exists(root_path):
+        print(f"❌ Error: Directory '{root_path}' does not exist!")
+        return
+    
+    # Allow user to specify output file
+    output_file = input("Enter output filename (or press Enter for 'tumbuhnyata_codebase.txt'): ").strip()
+    if not output_file:
+        output_file = 'tumbuhnyata_codebase.txt'
+    
+    try:
+        result_file = convert_codebase_to_text(root_path, output_file)
+        print(f"\n🎉 Success! Your codebase has been converted to: {result_file}")
+        print("📚 You can now upload this file to NotebookLM for analysis!")
+        
+    except Exception as e:
+        print(f"❌ Error during conversion: {str(e)}")
+
+
+if __name__ == "__main__":
+    main() 
+
+
+────────────────────────────────────────────────────────────
+FILE: config\db.js
+TYPE: JavaScript
+SIZE: 312 bytes (0.3 KB)
+────────────────────────────────────────────────────────────
+
+const { Sequelize } = require('sequelize');
+
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: 'mysql',
+    logging: false,
+  }
+);
+
+module.exports = sequelize;
+
+
+
+
+────────────────────────────────────────────────────────────
+FILE: config\dotenv.js
+TYPE: JavaScript
+SIZE: 53 bytes (0.1 KB)
+────────────────────────────────────────────────────────────
+
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+
+────────────────────────────────────────────────────────────
+FILE: tumbuhnyata_backend_codebase.txt
+TYPE: Text
+SIZE: 89610 bytes (87.5 KB)
+────────────────────────────────────────────────────────────
+
+================================================================================
+CODEBASE DOCUMENTATION FOR NOTEBOOKLM
+================================================================================
+Generated on: 2025-06-07 16:40:19
+Project root: D:\2025\TumbuhNyata-BE
+================================================================================
+
+PROJECT OVERVIEW
+----------------------------------------
+This appears to be a TumbuhNyata Backend API project - a Node.js/Express application
+for managing CSR (Corporate Social Responsibility), carbon emissions tracking,
+certifications, workshops, and notifications for companies.
+
+FILE STATISTICS
+----------------------------------------
+Total files processed: 34
+
+JSON                :   1 files
+JavaScript          :  28 files
+Markdown            :   1 files
+Python              :   1 files
+SQL                 :   1 files
+Unknown             :   2 files
+
+DIRECTORY STRUCTURE
+----------------------------------------
+📁 config/
+   📄 db.js (JavaScript, 0.3 KB)
+   📄 dotenv.js (JavaScript, 0.1 KB)
+   📄 notification_schema.sql (SQL, 0.4 KB)
+
+📁 controllers/
+   📄 authController.js (JavaScript, 2.2 KB)
+   📄 carbonSubmissionController.js (JavaScript, 9.9 KB)
+   📄 certificationsController.js (JavaScript, 2.9 KB)
+   📄 csrController.js (JavaScript, 5.2 KB)
+   📄 csrSummaryController.js (JavaScript, 2.1 KB)
+   📄 notificationController.js (JavaScript, 2.1 KB)
+   📄 profileController.js (JavaScript, 2.9 KB)
+   📄 workshopController.js (JavaScript, 0.9 KB)
+
+📁 middleware/
+   📄 authMiddleware.js (JavaScript, 0.8 KB)
+   📄 upload.js (JavaScript, 0.9 KB)
+   📄 uploadExcel.js (JavaScript, 0.8 KB)
+
+📁 models/
+   📄 Certification.js (JavaScript, 1.1 KB)
+   📄 CsrSubmission.js (JavaScript, 1.5 KB)
+   📄 Notification.js (JavaScript, 0.7 KB)
+   📄 UserPerusahaan.js (JavaScript, 0.8 KB)
+   📄 WorkshopRegistration.js (JavaScript, 0.9 KB)
+   📄 carbonSubmission.js (JavaScript, 4.6 KB)
+   📄 index.js (JavaScript, 0.5 KB)
+
+📁 root/
+   📄 .env (Unknown, 0.1 KB)
+   📄 .gitignore (Unknown, 0.0 KB)
+   📄 README-notification.md (Markdown, 3.9 KB)
+   📄 app.js (JavaScript, 1.0 KB)
+   📄 codebase_to_txt.py (Python, 12.3 KB)
+   📄 package.json (JSON, 0.5 KB)
+
+📁 routes/
+   📄 authRoutes.js (JavaScript, 0.3 KB)
+   📄 carbonSubmissions.js (JavaScript, 11.8 KB)
+   📄 certificationRoutes.js (JavaScript, 0.7 KB)
+   📄 csrRoutes.js (JavaScript, 0.7 KB)
+   📄 notificationRoutes.js (JavaScript, 0.6 KB)
+   📄 profileRoutes.js (JavaScript, 0.5 KB)
+   📄 workshopRoutes.js (JavaScript, 0.4 KB)
+
+
+================================================================================
+COMPLETE SOURCE CODE
+================================================================================
+
+
+==================== CONFIGURATION & SETUP ====================
+
+
+==================== DATABASE MODELS ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: models\Certification.js
+TYPE: JavaScript
+SIZE: 1086 bytes (1.1 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const Certification = sequelize.define('Certification', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  credential_body: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  benefits: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  cost: {
+    type: DataTypes.DECIMAL(15,2),
+    allowNull: false
+  },
+  status: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    defaultValue: 'submitted'
+  },
+  submission_date: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  },
+  supporting_documents: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, {
+  tableName: 'certifications',
+  timestamps: false
+});
+
+module.exports = Certification; 
+
+
+────────────────────────────────────────────────────────────
+FILE: models\CsrSubmission.js
+TYPE: JavaScript
+SIZE: 1492 bytes (1.5 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+// Model untuk pengajuan CSR
+const CsrSubmission = sequelize.define('CsrSubmission', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  program_name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  category: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  location: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  partner_name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  start_date: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  end_date: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  budget: {
+    type: DataTypes.DECIMAL(15,2),
+    allowNull: false
+  },
+  proposal_url: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  legality_url: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  agreed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  status: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    defaultValue: 'pending'
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'csr_submissions',
+  timestamps: false
+});
+
+module.exports = CsrSubmission; 
+
+
+────────────────────────────────────────────────────────────
+FILE: models\Notification.js
+TYPE: JavaScript
+SIZE: 709 bytes (0.7 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const Notification = sequelize.define('Notification', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  title: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  message: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  is_read: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'notifications',
+  timestamps: false
+});
+
+module.exports = Notification; 
+
+
+────────────────────────────────────────────────────────────
+FILE: models\UserPerusahaan.js
+TYPE: JavaScript
+SIZE: 804 bytes (0.8 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const UserPerusahaan = sequelize.define('UserPerusahaan', {
+  id_perusahaan: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  nama_perusahaan: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  password: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  no_telp: {
+    type: DataTypes.STRING(50),
+    allowNull: false
+  },
+  NIB: {
+    type: DataTypes.STRING(13),
+    allowNull: false
+  },
+  alamat: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, {
+  tableName: 'user_perusahaan',
+  timestamps: false
+});
+
+module.exports = UserPerusahaan; 
+
+
+────────────────────────────────────────────────────────────
+FILE: models\WorkshopRegistration.js
+TYPE: JavaScript
+SIZE: 888 bytes (0.9 KB)
+────────────────────────────────────────────────────────────
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const WorkshopRegistration = sequelize.define('WorkshopRegistration', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  workshop_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  company_name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  file_path: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  status: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    defaultValue: 'pending'
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'workshop_registrations',
+  timestamps: false
+});
+
+module.exports = WorkshopRegistration;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: models\carbonSubmission.js
+TYPE: JavaScript
+SIZE: 4703 bytes (4.6 KB)
+────────────────────────────────────────────────────────────
+
+// models/CarbonSubmission.js
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db"); // Sesuaikan dengan konfigurasi database Anda
+
+const CarbonSubmission = sequelize.define(
+  "CarbonSubmission",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    company_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      comment: "ID perusahaan yang melakukan submission",
+    },
+    year: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: new Date().getFullYear(),
+      comment: "Tahun data carbon footprint",
+    },
+    month: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: new Date().getMonth() + 1,
+      validate: {
+        min: 1,
+        max: 12,
+      },
+      comment: "Bulan data carbon footprint (1-12)",
+    },
+    carbon_value: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0.0,
+      comment: "Nilai carbon footprint dalam kg CO2e",
+    },
+    document_type: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      defaultValue: "csv_upload",
+      comment: "Jenis dokumen (csv_upload, pdf, xlsx, manual_input, etc.)",
+    },
+    document_name: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      comment: "Nama file dokumen yang diupload",
+    },
+    document_path: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: "Path lengkap file dokumen di server",
+    },
+    analysis: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: "Analisis atau catatan tambahan",
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    tableName: "carbon_submissions",
+    timestamps: false, // Karena kita menggunakan created_at manual
+    indexes: [
+      {
+        fields: ["company_id"],
+      },
+      {
+        fields: ["year", "month"],
+      },
+      {
+        fields: ["created_at"],
+      },
+    ],
+  }
+);
+
+// Method untuk mendapatkan data per bulan
+CarbonSubmission.getMonthlyData = async function (year, company_id = null) {
+  const whereClause = { year: parseInt(year) };
+  if (company_id) whereClause.company_id = company_id;
+
+  return await this.findAll({
+    attributes: [
+      "month",
+      [sequelize.fn("SUM", sequelize.col("carbon_value")), "total_carbon"],
+      [sequelize.fn("COUNT", sequelize.col("id")), "submission_count"],
+      [sequelize.fn("AVG", sequelize.col("carbon_value")), "avg_carbon"],
+    ],
+    where: whereClause,
+    group: ["month"],
+    order: [["month", "ASC"]],
+  });
+};
+
+// Method untuk mendapatkan total statistics
+CarbonSubmission.getTotalStats = async function (year, company_id = null) {
+  const whereClause = { year: parseInt(year) };
+  if (company_id) whereClause.company_id = company_id;
+
+  return await this.findOne({
+    attributes: [
+      [sequelize.fn("SUM", sequelize.col("carbon_value")), "total_carbon"],
+      [sequelize.fn("AVG", sequelize.col("carbon_value")), "avg_carbon"],
+      [sequelize.fn("COUNT", sequelize.col("id")), "total_submissions"],
+      [sequelize.fn("MIN", sequelize.col("carbon_value")), "min_carbon"],
+      [sequelize.fn("MAX", sequelize.col("carbon_value")), "max_carbon"],
+    ],
+    where: whereClause,
+  });
+};
+
+// Method untuk mendapatkan data tren tahunan
+CarbonSubmission.getYearlyTrend = async function (
+  company_id = null,
+  years = 5
+) {
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - years + 1;
+
+  const whereClause = {
+    year: {
+      [sequelize.Op.gte]: startYear,
+      [sequelize.Op.lte]: currentYear,
+    },
+  };
+  if (company_id) whereClause.company_id = company_id;
+
+  return await this.findAll({
+    attributes: [
+      "year",
+      [sequelize.fn("SUM", sequelize.col("carbon_value")), "total_carbon"],
+      [sequelize.fn("COUNT", sequelize.col("id")), "submission_count"],
+    ],
+    where: whereClause,
+    group: ["year"],
+    order: [["year", "ASC"]],
+  });
+};
+
+// Hook sebelum create untuk validasi
+CarbonSubmission.beforeCreate((instance, options) => {
+  // Pastikan carbon_value tidak negatif
+  if (instance.carbon_value < 0) {
+    instance.carbon_value = 0;
+  }
+
+  // Pastikan month dalam range yang benar
+  if (instance.month < 1 || instance.month > 12) {
+    instance.month = new Date().getMonth() + 1;
+  }
+
+  // Set default year jika tidak ada
+  if (!instance.year) {
+    instance.year = new Date().getFullYear();
+  }
+});
+
+module.exports = CarbonSubmission;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: models\index.js
+TYPE: JavaScript
+SIZE: 468 bytes (0.5 KB)
+────────────────────────────────────────────────────────────
+
+const UserPerusahaan = require('./UserPerusahaan');
+const Certification = require('./Certification');
+const CarbonSubmission = require('./carbonSubmission');
+const CsrSubmission = require('./CsrSubmission');
+const Notification = require('./Notification');
+const WorkshopRegistration = require('./WorkshopRegistration');
+
+module.exports = {
+  UserPerusahaan,
+  Certification,
+  CarbonSubmission,
+  CsrSubmission,
+  Notification,
+  WorkshopRegistration
+}; 
+
+
+==================== CONTROLLERS ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\authController.js
+TYPE: JavaScript
+SIZE: 2270 bytes (2.2 KB)
+────────────────────────────────────────────────────────────
+
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { UserPerusahaan } = require('../models');
+
+const registerUser = async (req, res) => {
+    const { companyName, email, password, phoneNumber, NIB, address } = req.body;
+    
+    // Validate password length
+    if (!password || password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long" });
+    }
+    
+    // Validate NIB
+    if (!NIB) {
+        return res.status(400).json({ message: "NIB cannot be empty" });
+    }
+    
+    if (NIB.length > 13) {
+        return res.status(400).json({ message: "NIB cannot exceed 13 characters" });
+    }
+    
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await UserPerusahaan.create({
+            nama_perusahaan: companyName,
+            email,
+            password: hashedPassword,
+            no_telp: phoneNumber,
+            NIB,
+            alamat: address
+        });
+        res.status(201).json({ message: "User registered successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Error registering user", error: err.message });
+    }
+};
+
+const loginUser = async (req, res) => {
+    const { NIB, password } = req.body;
+    try {
+        const user = await UserPerusahaan.findOne({ where: { NIB } });
+        if (!user) {
+            return res.status(401).json({ message: "Invalid NIB or password" });
+        }
+        if (!password || typeof password !== 'string' || !user.password || typeof user.password !== 'string') {
+            return res.status(500).json({ message: "Password is missing or invalid in request or database" });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Invalid NIB or password" });
+        }
+        const token = jwt.sign(
+            { id: user.id_perusahaan },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+        res.json({ token });
+    } catch (err) {
+        res.status(500).json({ message: "Error logging in", error: err.message });
+    }
+};
+
+module.exports = { registerUser, loginUser };
+
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\carbonSubmissionController.js
+TYPE: JavaScript
+SIZE: 10176 bytes (9.9 KB)
+────────────────────────────────────────────────────────────
+
+// controllers/carbonSubmissionController.js
+const multer = require("multer");
+const csv = require("csv-parser");
+const fs = require("fs");
+const path = require("path");
+const CarbonSubmission = require("../models/carbonSubmission");
+
+// Konfigurasi multer untuk upload file
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "../uploads");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const originalName = file.originalname.replace(/\s+/g, "_");
+    cb(null, `${timestamp}_${originalName}`);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === "text/csv" || file.originalname.endsWith(".csv")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only CSV files are allowed"), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+});
+
+class CarbonSubmissionController {
+  // Upload dan proses file CSV
+  static uploadCSV = upload.single("csvFile");
+
+  static async processCSVFile(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: "No CSV file uploaded",
+        });
+      }
+
+      const filePath = req.file.path;
+      const results = [];
+
+      // Baca dan parse CSV file
+      await new Promise((resolve, reject) => {
+        fs.createReadStream(filePath)
+          .pipe(csv())
+          .on("data", (data) => {
+            // Validasi dan clean data sesuai dengan CSV structure
+            const allowedTypes = [
+              "laporan_csr",
+              "sertifikasi_csr",
+              "data_emisi",
+              "dokumen_pendukung_lain",
+            ];
+            let docType = data.document_type
+              ? data.document_type.toString().trim()
+              : "data_emisi";
+            if (!allowedTypes.includes(docType)) docType = "data_emisi";
+
+            const cleanData = {
+              company_id: data.id_perusahaan
+                ? data.id_perusahaan.toString().trim()
+                : null,
+              year: parseInt(data.year) || new Date().getFullYear(),
+              month: parseInt(data.month) || new Date().getMonth() + 1,
+              carbon_value: parseFloat(data.carbon_value) || 0,
+              document_type: docType,
+              document_name: data.document_name
+                ? data.document_name.toString().trim()
+                : req.file.originalname,
+              document_path: data.document_path
+                ? data.document_path.toString().trim()
+                : req.file.path,
+              analysis: data.analysis ? data.analysis.toString().trim() : null,
+              created_at: new Date(),
+            };
+
+            // Validasi tambahan
+            if (cleanData.month < 1 || cleanData.month > 12) {
+              cleanData.month = new Date().getMonth() + 1;
+            }
+
+            if (cleanData.carbon_value < 0) {
+              cleanData.carbon_value = 0;
+            }
+
+            results.push(cleanData);
+          })
+          .on("end", resolve)
+          .on("error", reject);
+      });
+
+      if (results.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "No valid data found in CSV file",
+        });
+      }
+
+      // Simpan data ke database
+      const savedData = await CarbonSubmission.bulkCreate(results);
+
+      // Hitung total carbon footprint
+      const totalCarbon = results.reduce(
+        (sum, item) => sum + item.carbon_value,
+        0
+      );
+      const avgCarbon = totalCarbon / results.length;
+
+      res.status(201).json({
+        success: true,
+        message: "CSV file processed successfully",
+        data: {
+          totalRecords: savedData.length,
+          totalCarbonValue: totalCarbon,
+          averageCarbonValue: avgCarbon,
+          fileName: req.file.originalname,
+          processedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      console.error("Error processing CSV:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error processing CSV file",
+        error: error.message,
+      });
+    }
+  }
+
+  // Get semua data submissions
+  static async getAllSubmissions(req, res) {
+    try {
+      const { page = 1, limit = 10, year, month, company_id } = req.query;
+      const offset = (page - 1) * limit;
+
+      const whereClause = {};
+      if (year) whereClause.year = year;
+      if (month) whereClause.month = month;
+      if (company_id) whereClause.company_id = company_id;
+
+      const submissions = await CarbonSubmission.findAndCountAll({
+        where: whereClause,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        order: [["created_at", "DESC"]],
+      });
+
+      res.status(200).json({
+        success: true,
+        data: submissions.rows,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(submissions.count / limit),
+          totalItems: submissions.count,
+          itemsPerPage: parseInt(limit),
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching submissions:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching submissions",
+        error: error.message,
+      });
+    }
+  }
+
+  // Get carbon footprint analytics
+  static async getAnalytics(req, res) {
+    try {
+      const { year = new Date().getFullYear(), company_id } = req.query;
+
+      const whereClause = { year: parseInt(year) };
+      if (company_id) whereClause.company_id = company_id;
+
+      // Get monthly data untuk chart
+      const monthlyData = await CarbonSubmission.findAll({
+        attributes: [
+          "month",
+          [
+            CarbonSubmission.sequelize.fn(
+              "SUM",
+              CarbonSubmission.sequelize.col("carbon_value")
+            ),
+            "total_carbon",
+          ],
+          [
+            CarbonSubmission.sequelize.fn(
+              "COUNT",
+              CarbonSubmission.sequelize.col("id")
+            ),
+            "submission_count",
+          ],
+        ],
+        where: whereClause,
+        group: ["month"],
+        order: [["month", "ASC"]],
+      });
+
+      // Get total statistics
+      const totalStats = await CarbonSubmission.findOne({
+        attributes: [
+          [
+            CarbonSubmission.sequelize.fn(
+              "SUM",
+              CarbonSubmission.sequelize.col("carbon_value")
+            ),
+            "total_carbon",
+          ],
+          [
+            CarbonSubmission.sequelize.fn(
+              "AVG",
+              CarbonSubmission.sequelize.col("carbon_value")
+            ),
+            "avg_carbon",
+          ],
+          [
+            CarbonSubmission.sequelize.fn(
+              "COUNT",
+              CarbonSubmission.sequelize.col("id")
+            ),
+            "total_submissions",
+          ],
+        ],
+        where: whereClause,
+      });
+
+      // Format data untuk response
+      const chartData = Array.from({ length: 12 }, (_, i) => {
+        const month = i + 1;
+        const monthData = monthlyData.find((item) => item.month === month);
+        return {
+          month: month,
+          carbon_value: monthData
+            ? parseFloat(monthData.dataValues.total_carbon)
+            : 0,
+          submission_count: monthData
+            ? parseInt(monthData.dataValues.submission_count)
+            : 0,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          year: parseInt(year),
+          monthlyData: chartData,
+          totalStats: {
+            totalCarbon: parseFloat(totalStats.dataValues.total_carbon) || 0,
+            avgCarbon: parseFloat(totalStats.dataValues.avg_carbon) || 0,
+            totalSubmissions:
+              parseInt(totalStats.dataValues.total_submissions) || 0,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching analytics",
+        error: error.message,
+      });
+    }
+  }
+
+  // Delete submission
+  static async deleteSubmission(req, res) {
+    try {
+      const { id } = req.params;
+
+      const submission = await CarbonSubmission.findByPk(id);
+      if (!submission) {
+        return res.status(404).json({
+          success: false,
+          message: "Submission not found",
+        });
+      }
+
+      // Hapus file jika ada
+      if (submission.document_path && fs.existsSync(submission.document_path)) {
+        fs.unlinkSync(submission.document_path);
+      }
+
+      await submission.destroy();
+
+      res.status(200).json({
+        success: true,
+        message: "Submission deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error deleting submission:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error deleting submission",
+        error: error.message,
+      });
+    }
+  }
+
+  // Get submission by ID
+  static async getSubmissionById(req, res) {
+    try {
+      const { id } = req.params;
+
+      const submission = await CarbonSubmission.findByPk(id);
+      if (!submission) {
+        return res.status(404).json({
+          success: false,
+          message: "Submission not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        data: submission,
+      });
+    } catch (error) {
+      console.error("Error fetching submission:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching submission",
+        error: error.message,
+      });
+    }
+  }
+}
+
+module.exports = CarbonSubmissionController;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\certificationsController.js
+TYPE: JavaScript
+SIZE: 2924 bytes (2.9 KB)
+────────────────────────────────────────────────────────────
+
+const db = require('../config/db');
+const { Certification } = require('../models');
+
+// ✅ GET semua pengajuan sertifikasi milik user
+exports.getUserCertifications = (req, res) => {
+  const userId = req.userId;
+
+  const sql = "SELECT * FROM certifications WHERE user_id = ? ORDER BY submission_date DESC";
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching certifications:', err);
+      return res.status(500).json({ message: "Gagal mengambil data sertifikasi", error: err.message });
+    }
+
+    res.json({ data: results });
+  });
+};
+
+// ✅ GET detail satu pengajuan sertifikasi
+exports.getCertificationById = (req, res) => {
+  const userId = req.userId;
+  const id = req.params.id;
+
+  const sql = "SELECT * FROM certifications WHERE id = ? AND user_id = ?";
+  db.query(sql, [id, userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching certification:', err);
+      return res.status(500).json({ message: "Gagal mengambil detail sertifikasi", error: err.message });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Sertifikasi tidak ditemukan" });
+    }
+
+    res.json({ data: results[0] });
+  });
+};
+
+// ✅ POST ajukan sertifikasi baru
+exports.submitCertification = async (req, res) => {
+  const userId = req.userId;
+  const { name, description, credential_body, benefits, cost, supporting_documents } = req.body;
+
+  if (!name || !description || !credential_body || !benefits || !cost || !supporting_documents) {
+    return res.status(400).json({ message: "Semua field harus diisi" });
+  }
+
+  try {
+    const newCertification = await Certification.create({
+      user_id: userId,
+      name,
+      description,
+      credential_body,
+      benefits,
+      cost,
+      status: 'submitted',
+      submission_date: new Date(),
+      supporting_documents: JSON.stringify(supporting_documents)
+    });
+
+    res.status(201).json({ message: "Pengajuan sertifikasi berhasil", id: newCertification.id });
+  } catch (err) {
+    console.error('Error submitting certification:', err);
+    res.status(500).json({ message: "Gagal mengajukan sertifikasi", error: err.message });
+  }
+};
+
+// ✅ PUT untuk update status (opsional, misal admin)
+exports.updateStatus = (req, res) => {
+  const id = req.params.id;
+  const { status } = req.body;
+
+  if (!['submitted', 'in_review', 'approved', 'rejected'].includes(status)) {
+    return res.status(400).json({ message: "Status tidak valid" });
+  }
+
+  const sql = "UPDATE certifications SET status = ? WHERE id = ?";
+  db.query(sql, [status, id], (err, result) => {
+    if (err) {
+      console.error('Error updating status:', err);
+      return res.status(500).json({ message: "Gagal memperbarui status", error: err.message });
+    }
+
+    res.json({ message: "Status sertifikasi diperbarui" });
+  });
+};
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\csrController.js
+TYPE: JavaScript
+SIZE: 5275 bytes (5.2 KB)
+────────────────────────────────────────────────────────────
+
+const { CsrSubmission } = require('../models');
+const path = require('path');
+
+exports.submitCSR = async (req, res) => {
+  try {
+    // Validasi body request
+    if (!req.body || !req.body.user_id) {
+      return res.status(400).json({ 
+        message: 'Data tidak lengkap. user_id diperlukan.'
+      });
+    }
+
+    const {
+      user_id,
+      program_name,
+      category,
+      description,
+      location,
+      partner_name,
+      start_date,
+      end_date,
+      budget,
+      agreed
+    } = req.body;
+
+    // Debug output
+    console.log('Request Body:', req.body);
+    console.log('Files:', req.files);
+
+    // Fungsi untuk konversi format tanggal dari "DD MMM YYYY" ke "YYYY-MM-DD"
+    const convertDateFormat = (dateString) => {
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+          throw new Error('Invalid date format');
+        }
+        return date.toISOString().split('T')[0]; // Return YYYY-MM-DD
+      } catch (error) {
+        console.error('Date conversion error:', error);
+        throw new Error(`Invalid date format: ${dateString}`);
+      }
+    };
+
+    // Konversi budget ke number
+    const budgetNumber = parseFloat(budget.toString().replace(/[^\d.]/g, ''));
+    if (isNaN(budgetNumber)) {
+      return res.status(400).json({ 
+        message: 'Format budget tidak valid'
+      });
+    }
+
+    // Konversi tanggal
+    let convertedStartDate, convertedEndDate;
+    try {
+      convertedStartDate = convertDateFormat(start_date);
+      convertedEndDate = convertDateFormat(end_date);
+    } catch (error) {
+      return res.status(400).json({ 
+        message: `Error konversi tanggal: ${error.message}`
+      });
+    }
+
+    // Penanganan file dengan cara yang lebih aman (opsional untuk testing)
+    let proposal_url = null;
+    let legality_url = null;
+    
+    if (req.files) {
+      if (req.files['proposal'] && req.files['proposal'][0]) {
+        proposal_url = req.files['proposal'][0].path;
+      }
+      
+      if (req.files['legalitas'] && req.files['legalitas'][0]) {
+        legality_url = req.files['legalitas'][0].path;
+      }
+    }
+
+    console.log('Converted data:', {
+      user_id,
+      program_name,
+      category,
+      description,
+      location,
+      partner_name,
+      start_date: convertedStartDate,
+      end_date: convertedEndDate,
+      budget: budgetNumber,
+      agreed: agreed === true || agreed === 'true'
+    });
+
+    const newSubmission = await CsrSubmission.create({
+      user_id,
+      program_name,
+      category,
+      description,
+      location,
+      partner_name,
+      start_date: convertedStartDate,
+      end_date: convertedEndDate,
+      budget: budgetNumber,
+      proposal_url,
+      legality_url,
+      agreed: agreed === true || agreed === 'true',
+    });
+
+    res.status(201).json({ message: 'Pengajuan CSR berhasil dibuat', data: newSubmission });
+  } catch (err) {
+    console.error('Error submitting CSR:', err);
+    res.status(500).json({ message: 'Gagal membuat pengajuan CSR', error: err.message });
+  }
+};
+
+exports.getCSRDetail = async (req, res) => {
+  const { id } = req.params;
+  const csr = await CsrSubmission.findByPk(id);
+  if (!csr) return res.status(404).json({ message: 'CSR tidak ditemukan' });
+  res.json(csr);
+};
+
+exports.getAllCSR = async (req, res) => {
+  const list = await CsrSubmission.findAll();
+  res.json(list);
+};
+
+exports.getCSRHistory = async (req, res) => {
+  try {
+    const user_id = req.query.user_id;
+    if (!user_id) {
+      return res.status(400).json({ message: 'Parameter user_id diperlukan.' });
+    }
+
+    const submissions = await CsrSubmission.findAll({
+      where: { user_id },
+      order: [['start_date', 'DESC']]
+    });
+
+    res.json(submissions);
+  } catch (err) {
+    console.error('Error fetching CSR history:', err);
+    res.status(500).json({ message: 'Gagal mengambil riwayat CSR.' });
+  }
+};
+
+// NEW: detail salah satu riwayat CSR (cek juga agar hanya milik user itu)
+exports.getCSRHistoryDetail = async (req, res) => {
+  try {
+    const user_id = req.query.user_id;
+    const { id } = req.params;
+
+    if (!user_id) {
+      return res.status(400).json({ message: 'Parameter user_id diperlukan.' });
+    }
+
+    const submission = await CsrSubmission.findByPk(id);
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Riwayat CSR tidak ditemukan.' });
+    }
+
+    // Cek apakah submission milik user yang sesuai
+    // Konversi ke string untuk memastikan perbandingan yang benar
+    if (String(submission.user_id) !== String(user_id)) {
+      console.log('User ID mismatch:', { 
+        submissionUserId: submission.user_id, 
+        requestedUserId: user_id,
+        types: {
+          submissionUserIdType: typeof submission.user_id,
+          requestedUserIdType: typeof user_id
+        }
+      });
+      return res.status(403).json({ message: 'Anda tidak memiliki akses ke riwayat CSR ini.' });
+    }
+
+    res.json(submission);
+  } catch (err) {
+    console.error('Error fetching CSR history detail:', err);
+    res.status(500).json({ message: 'Gagal mengambil detail riwayat CSR.' });
+  }
+}; 
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\csrSummaryController.js
+TYPE: JavaScript
+SIZE: 2125 bytes (2.1 KB)
+────────────────────────────────────────────────────────────
+
+const CsrSubmission = require('../models/CsrSubmission');
+
+const formatRupiah = (angka) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0
+  }).format(angka);
+};
+
+const getCsrSummary = async (req, res) => {
+  try {
+    const submissions = await CsrSubmission.findAll();
+
+    let totalDana = 0;
+    let categoryMap = {}; // { [category]: { jumlah, total } }
+    let statusMap = {
+      selesai: 0,
+      progress: 0,
+      mendatang: 0
+    };
+
+    submissions.forEach(submission => {
+      const budget = Number(submission.budget) || 0;
+      const category = submission.category;
+      const status = submission.status;
+
+      // Total keseluruhan
+      totalDana += budget;
+
+      // Per kategori
+      if (!categoryMap[category]) {
+        categoryMap[category] = { jumlah: 0, total: 0 };
+      }
+      categoryMap[category].jumlah += 1;
+      categoryMap[category].total += budget;
+
+      // Per status
+      if (status === 'selesai') {
+        statusMap.selesai += budget;
+      } else if (status === 'progress') {
+        statusMap.progress += budget;
+      } else {
+        statusMap.mendatang += budget;
+      }
+    });
+
+    // Hitung persentase
+    Object.keys(categoryMap).forEach(category => {
+      const cat = categoryMap[category];
+      cat.persentase = ((cat.total / totalDana) * 100).toFixed(1);
+    });
+
+    res.json({
+      totalDana: formatRupiah(totalDana),
+      kategori: Object.entries(categoryMap).reduce((acc, [key, val]) => {
+        acc[key] = {
+          jumlah: val.jumlah,
+          total: formatRupiah(val.total),
+          persentase: val.persentase + "%"
+        };
+        return acc;
+      }, {}),
+      status: {
+        selesai: formatRupiah(statusMap.selesai),
+        progress: formatRupiah(statusMap.progress),
+        mendatang: formatRupiah(statusMap.mendatang)
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Gagal mengambil summary CSR" });
+  }
+};
+
+module.exports = { getCsrSummary };
+
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\notificationController.js
+TYPE: JavaScript
+SIZE: 2107 bytes (2.1 KB)
+────────────────────────────────────────────────────────────
+
+const Notification = require('../models/Notification');
+
+// Controller untuk fitur notifikasi
+const notificationController = {
+  // Mendapatkan semua notifikasi berdasarkan user_id
+  getNotifications: async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const notifications = await Notification.findByUserId(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error retrieving notifications:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan saat mengambil notifikasi' });
+    }
+  },
+
+  // Membuat notifikasi baru
+  createNotification: async (req, res) => {
+    try {
+      const { user_id, title, message } = req.body;
+      
+      // Validasi input
+      if (!user_id || !title || !message) {
+        return res.status(400).json({ message: 'user_id, title, dan message harus diisi' });
+      }
+
+      const newNotification = await Notification.create({ user_id, title, message });
+      res.status(201).json(newNotification);
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan saat membuat notifikasi' });
+    }
+  },
+
+  // Menandai notifikasi sebagai dibaca
+  markAsRead: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Notification.markAsRead(id);
+      res.json({ message: 'Notifikasi berhasil ditandai telah dibaca' });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan saat menandai notifikasi telah dibaca' });
+    }
+  },
+
+  // Menghapus notifikasi
+  deleteNotification: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Notification.delete(id);
+      res.json({ message: 'Notifikasi berhasil dihapus' });
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan saat menghapus notifikasi' });
+    }
+  }
+};
+
+module.exports = notificationController; 
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\profileController.js
+TYPE: JavaScript
+SIZE: 2983 bytes (2.9 KB)
+────────────────────────────────────────────────────────────
+
+const { UserPerusahaan } = require('../models');
+const bcrypt = require('bcryptjs');
+
+// Mendapatkan profil user
+exports.getUserProfile = async (req, res) => {
+  try {
+    const userId = req.userId; // Didapatkan dari middleware auth
+    const user = await UserPerusahaan.findByPk(userId, {
+      attributes: ['id_perusahaan', 'nama_perusahaan', 'email', 'no_telp', 'NIB', 'alamat']
+    });
+    if (!user) {
+      return res.status(404).json({ message: "Profil pengguna tidak ditemukan" });
+    }
+    res.json({ data: user });
+  } catch (err) {
+    console.error('Error in getUserProfile:', err);
+    res.status(500).json({ message: "Terjadi kesalahan saat mengambil profil" });
+  }
+};
+
+// Mengupdate profil user
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.userId; // Didapatkan dari middleware auth
+    const { companyName, email, phoneNumber, address } = req.body;
+
+    // Validasi input
+    if (!companyName || !email || !phoneNumber || !address) {
+      return res.status(400).json({ message: "Semua field harus diisi" });
+    }
+
+    const [updated] = await UserPerusahaan.update({
+      nama_perusahaan: companyName,
+      email,
+      no_telp: phoneNumber,
+      alamat: address
+    }, {
+      where: { id_perusahaan: userId }
+    });
+
+    if (updated === 0) {
+      return res.status(404).json({ message: "Profil pengguna tidak ditemukan" });
+    }
+
+    res.json({ message: "Profil berhasil diperbarui" });
+  } catch (err) {
+    console.error('Error in updateUserProfile:', err);
+    res.status(500).json({ message: "Terjadi kesalahan saat memperbarui profil" });
+  }
+};
+
+// Mengubah password
+exports.changePassword = async (req, res) => {
+  try {
+    const userId = req.userId; // Didapatkan dari middleware auth
+    const { currentPassword, newPassword } = req.body;
+
+    // Validasi input
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Password lama dan baru harus diisi" });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: "Password baru minimal 8 karakter" });
+    }
+
+    // Ambil data user
+    const user = await UserPerusahaan.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Pengguna tidak ditemukan" });
+    }
+
+    // Verifikasi password lama
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Password lama tidak sesuai" });
+    }
+
+    // Hash password baru
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await UserPerusahaan.update({ password: hashedPassword }, { where: { id_perusahaan: userId } });
+    res.json({ message: "Password berhasil diperbarui" });
+  } catch (err) {
+    console.error('Error in changePassword:', err);
+    res.status(500).json({ message: "Terjadi kesalahan saat mengubah password" });
+  }
+}; 
+
+
+────────────────────────────────────────────────────────────
+FILE: controllers\workshopController.js
+TYPE: JavaScript
+SIZE: 943 bytes (0.9 KB)
+────────────────────────────────────────────────────────────
+
+const WorkshopRegistration = require('../models/WorkshopRegistration');
+
+exports.registerWorkshop = async (req, res) => {
+  const { workshop_id, company_name, email } = req.body;
+  const file = req.file;
+  const filePath = file ? file.path : null;
+
+  if (!workshop_id || !company_name || !email) {
+    return res.status(400).json({
+      message: 'Data tidak lengkap. workshop_id, company_name, dan email diperlukan.'
+    });
+  }
+
+  try {
+    const registration = await WorkshopRegistration.create({
+      workshop_id,
+      company_name,
+      email,
+      file_path: filePath,
+      status: 'pending',
+      created_at: new Date()
+    });
+
+    res.status(201).json({
+      message: 'Pendaftaran Workshop Berhasil',
+      data: registration
+    });
+  } catch (err) {
+    console.error('DB Error:', err);
+    res.status(500).json({ message: 'Gagal menyimpan pendaftaran workshop', error: err.message });
+  }
+};
+
+
+
+==================== ROUTES ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\authRoutes.js
+TYPE: JavaScript
+SIZE: 257 bytes (0.3 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const { registerUser, loginUser } = require('../controllers/authController'); 
+
+const router = express.Router();
+
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+
+module.exports = router;
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\carbonSubmissions.js
+TYPE: JavaScript
+SIZE: 12038 bytes (11.8 KB)
+────────────────────────────────────────────────────────────
+
+// routes/carbonSubmissions.js
+const express = require("express");
+const router = express.Router();
+const { Op } = require("sequelize");
+const CarbonSubmissionController = require("../controllers/carbonSubmissionController");
+
+// Route untuk upload dan proses CSV file
+router.post(
+  "/upload-csv",
+  CarbonSubmissionController.uploadCSV,
+  CarbonSubmissionController.processCSVFile
+);
+
+// Route untuk mendapatkan semua submissions dengan pagination dan filter
+router.get("/submissions", CarbonSubmissionController.getAllSubmissions);
+
+// Route untuk mendapatkan analytics data
+router.get("/analytics", CarbonSubmissionController.getAnalytics);
+
+// Route untuk mendapatkan submission by ID
+router.get("/submissions/:id", CarbonSubmissionController.getSubmissionById);
+
+// Route untuk delete submission
+router.delete("/submissions/:id", CarbonSubmissionController.deleteSubmission);
+
+// Route untuk mendapatkan KPI data by type
+router.get("/kpi/:kpiType", async (req, res) => {
+  try {
+    const { kpiType } = req.params;
+    const { company_id, year } = req.query;
+
+    // Debug logging
+    console.log("KPI Endpoint called with:", { kpiType, company_id, year });
+
+    // Validate kpiType
+    if (kpiType !== "carbon_footprint") {
+      return res.status(404).json({
+        success: false,
+        message: `Unsupported KPI type: ${kpiType}. Currently only 'carbon_footprint' is supported.`,
+      });
+    }
+
+    const CarbonSubmission = require("../models/carbonSubmission");
+
+    // Smart Year Detection: Get latest year with data if no year specified
+    let actualYear;
+    if (year) {
+      actualYear = parseInt(year);
+    } else {
+      const availableYears = await CarbonSubmission.findAll({
+        attributes: [
+          [
+            CarbonSubmission.sequelize.fn(
+              "DISTINCT",
+              CarbonSubmission.sequelize.col("year")
+            ),
+            "year",
+          ],
+        ],
+        order: [["year", "DESC"]],
+      });
+
+      actualYear =
+        availableYears.length > 0
+          ? availableYears[0].dataValues.year
+          : new Date().getFullYear();
+      console.log(
+        "Available years in database:",
+        availableYears.map((y) => y.dataValues.year)
+      );
+      console.log("Using year for calculation:", actualYear);
+    }
+
+    // Base where clause for current year data (monthly)
+    const monthlyWhereClause = { year: actualYear };
+    if (company_id && company_id !== "undefined") {
+      monthlyWhereClause.company_id = company_id;
+    }
+
+    // 1. Get yearly data (monthly aggregation for specified year)
+    const monthlyData = await CarbonSubmission.findAll({
+      attributes: [
+        "month",
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_carbon",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "COUNT",
+            CarbonSubmission.sequelize.col("id")
+          ),
+          "submission_count",
+        ],
+      ],
+      where: monthlyWhereClause,
+      group: ["month"],
+      order: [["month", "ASC"]],
+    });
+
+    console.log(
+      "Monthly data query results:",
+      monthlyData.length,
+      "months found"
+    );
+
+    // Format yearly data (ensure all 12 months are included)
+    const yearly_data = Array.from({ length: 12 }, (_, i) => {
+      const month = i + 1;
+      const monthData = monthlyData.find((item) => item.month === month);
+      return {
+        month: month,
+        value: monthData ? parseFloat(monthData.dataValues.total_carbon) : 0,
+        submission_count: monthData
+          ? parseInt(monthData.dataValues.submission_count)
+          : 0,
+      };
+    });
+
+    // 2. Get multi-year data (last 5 years including current year)
+    const startYear = actualYear - 4; // 5 years total including current
+    const multiYearWhereClause = {
+      year: {
+        [Op.gte]: startYear,
+        [Op.lte]: actualYear,
+      },
+    };
+    if (company_id && company_id !== "undefined") {
+      multiYearWhereClause.company_id = company_id;
+    }
+
+    const yearlyAggregation = await CarbonSubmission.findAll({
+      attributes: [
+        "year",
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_carbon",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "COUNT",
+            CarbonSubmission.sequelize.col("id")
+          ),
+          "submission_count",
+        ],
+      ],
+      where: multiYearWhereClause,
+      group: ["year"],
+      order: [["year", "ASC"]],
+    });
+
+    // Format multi-year data (ensure all 5 years are included)
+    const multi_year_data = Array.from({ length: 5 }, (_, i) => {
+      const targetYear = startYear + i;
+      const yearData = yearlyAggregation.find(
+        (item) => item.year === targetYear
+      );
+      return {
+        year: targetYear,
+        total_value: yearData
+          ? parseFloat(yearData.dataValues.total_carbon)
+          : 0,
+        submission_count: yearData
+          ? parseInt(yearData.dataValues.submission_count)
+          : 0,
+      };
+    });
+
+    // 3. Get statistics for the specified year
+    const statistics = await CarbonSubmission.findOne({
+      attributes: [
+        [
+          CarbonSubmission.sequelize.fn(
+            "AVG",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "avg_value",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "MIN",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "min_value",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "MAX",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "max_value",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_value",
+        ],
+      ],
+      where: monthlyWhereClause,
+    });
+
+    // Format statistics
+    const statsData = statistics?.dataValues || {};
+    const formattedStats = {
+      average_value: parseFloat(statsData.avg_value) || 0,
+      min_value: parseFloat(statsData.min_value) || 0,
+      max_value: parseFloat(statsData.max_value) || 0,
+      total_value: parseFloat(statsData.total_value) || 0,
+    };
+
+    console.log("Statistics results:", formattedStats);
+
+    // 4. Generate analysis
+    const totalSubmissions = yearly_data.reduce(
+      (sum, month) => sum + month.submission_count,
+      0
+    );
+    const analysis = `Analisis carbon footprint untuk tahun ${actualYear}. Total emisi: ${formattedStats.total_value.toFixed(
+      1
+    )} kg CO₂e dengan rata-rata ${formattedStats.average_value.toFixed(
+      1
+    )} kg CO₂e per submission. Total ${totalSubmissions} submission tercatat.`;
+
+    // Final response
+    res.status(200).json({
+      success: true,
+      data: {
+        kpi_type: "carbon_footprint",
+        title: "Carbon Footprint",
+        unit: "kg CO₂e",
+        yearly_data: yearly_data,
+        multi_year_data: multi_year_data,
+        statistics: formattedStats,
+        analysis: analysis,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching KPI data:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching KPI data",
+      error: error.message,
+    });
+  }
+});
+
+// Route untuk mendapatkan dashboard data (kombinasi analytics dan recent submissions)
+router.get("/dashboard", async (req, res) => {
+  try {
+    const { year, company_id } = req.query;
+
+    console.log("Dashboard endpoint called with:", { year, company_id });
+
+    const CarbonSubmission = require("../models/carbonSubmission");
+
+    // Smart Year Detection: Get latest year with data if no year specified
+    let actualYear;
+    if (year) {
+      actualYear = parseInt(year);
+    } else {
+      const availableYears = await CarbonSubmission.findAll({
+        attributes: [
+          [
+            CarbonSubmission.sequelize.fn(
+              "DISTINCT",
+              CarbonSubmission.sequelize.col("year")
+            ),
+            "year",
+          ],
+        ],
+        order: [["year", "DESC"]],
+      });
+
+      actualYear =
+        availableYears.length > 0
+          ? availableYears[0].dataValues.year
+          : new Date().getFullYear();
+      console.log(
+        "Available years in database:",
+        availableYears.map((y) => y.dataValues.year)
+      );
+      console.log("Using year for dashboard calculation:", actualYear);
+    }
+
+    // Simulate controller calls (dalam implementasi nyata, ekstrak logic ke service)
+    const whereClause = { year: parseInt(actualYear) };
+    if (company_id && company_id !== "undefined") {
+      whereClause.company_id = company_id;
+    }
+
+    console.log("Dashboard whereClause:", whereClause);
+
+    // Get analytics
+    const monthlyData = await CarbonSubmission.findAll({
+      attributes: [
+        "month",
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_carbon",
+        ],
+      ],
+      where: whereClause,
+      group: ["month"],
+      order: [["month", "ASC"]],
+    });
+
+    const totalStats = await CarbonSubmission.findOne({
+      attributes: [
+        [
+          CarbonSubmission.sequelize.fn(
+            "SUM",
+            CarbonSubmission.sequelize.col("carbon_value")
+          ),
+          "total_carbon",
+        ],
+        [
+          CarbonSubmission.sequelize.fn(
+            "COUNT",
+            CarbonSubmission.sequelize.col("id")
+          ),
+          "total_submissions",
+        ],
+      ],
+      where: whereClause,
+    });
+
+    console.log("Dashboard query results:", {
+      monthlyDataCount: monthlyData.length,
+      totalStats: totalStats?.dataValues,
+    });
+
+    // Get recent submissions
+    const recentSubmissionsWhere =
+      company_id && company_id !== "undefined" ? { company_id } : {};
+    const recentSubmissions = await CarbonSubmission.findAll({
+      where: recentSubmissionsWhere,
+      limit: 5,
+      order: [["created_at", "DESC"]],
+    });
+
+    // Format chart data
+    const chartData = Array.from({ length: 12 }, (_, i) => {
+      const month = i + 1;
+      const monthData = monthlyData.find((item) => item.month === month);
+      return {
+        month: month,
+        carbon_value: monthData
+          ? parseFloat(monthData.dataValues.total_carbon)
+          : 0,
+      };
+    });
+
+    const finalTotalCarbon =
+      parseFloat(totalStats?.dataValues?.total_carbon) || 0;
+    const finalTotalSubmissions =
+      parseInt(totalStats?.dataValues?.total_submissions) || 0;
+
+    console.log("Final dashboard totals:", {
+      finalTotalCarbon,
+      finalTotalSubmissions,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        analytics: {
+          year: parseInt(actualYear),
+          monthlyData: chartData,
+          totalStats: {
+            totalCarbon: finalTotalCarbon,
+            totalSubmissions: finalTotalSubmissions,
+          },
+        },
+        recentSubmissions: recentSubmissions,
+        summary: {
+          currentYearTotal: finalTotalCarbon,
+          submissionCount: finalTotalSubmissions,
+          lastUpdated: new Date(),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching dashboard data",
+      error: error.message,
+    });
+  }
+});
+
+module.exports = router;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\certificationRoutes.js
+TYPE: JavaScript
+SIZE: 731 bytes (0.7 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const router = express.Router();
+const controller = require('../controllers/certificationsController');
+const verifyToken = require('../middleware/authMiddleware');
+
+// Get semua pengajuan sertifikasi milik user
+router.get('/', verifyToken, controller.getUserCertifications);
+
+// Get detail satu pengajuan sertifikasi
+router.get('/:id', verifyToken, controller.getCertificationById);
+
+// Ajukan sertifikasi baru
+router.post('/apply', verifyToken, controller.submitCertification);
+
+// Update status (opsional)
+router.put('/:id/status', controller.updateStatus); // bisa diberi verifyToken jika hanya admin
+// bisa juga ditambahkan role check jika perlu
+module.exports = router;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\csrRoutes.js
+TYPE: JavaScript
+SIZE: 672 bytes (0.7 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const router = express.Router();
+const csrController = require('../controllers/csrController');
+const { uploadCSRFiles } = require('../middleware/upload');
+const { getCsrSummary } = require('../controllers/csrSummaryController');
+
+// Endpoint untuk melihat riwayat CSR (list)
+router.get('/history', csrController.getCSRHistory);
+
+// Endpoint untuk melihat detail 1 CSR dari riwayat
+router.get('/history/:id', csrController.getCSRHistoryDetail);
+
+// Endpoint existing untuk submit baru
+router.post('/ajukan', uploadCSRFiles, csrController.submitCSR);
+
+router.get('/summary', getCsrSummary);
+
+
+module.exports = router;
+
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\notificationRoutes.js
+TYPE: JavaScript
+SIZE: 639 bytes (0.6 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const router = express.Router();
+const notificationController = require('../controllers/notificationController');
+
+// Route untuk mendapatkan semua notifikasi berdasarkan user_id
+router.get('/:userId', notificationController.getNotifications);
+
+// Route untuk membuat notifikasi baru
+router.post('/', notificationController.createNotification);
+
+// Route untuk menandai notifikasi sebagai dibaca
+router.patch('/:id/read', notificationController.markAsRead);
+
+// Route untuk menghapus notifikasi
+router.delete('/:id', notificationController.deleteNotification);
+
+module.exports = router; 
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\profileRoutes.js
+TYPE: JavaScript
+SIZE: 497 bytes (0.5 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const { getUserProfile, updateUserProfile, changePassword } = require('../controllers/profileController');
+const verifyToken = require('../middleware/authMiddleware');
+
+const router = express.Router();
+
+// Middleware autentikasi untuk semua routes
+router.use(verifyToken);
+
+// Route untuk profil
+router.get('/me', getUserProfile);
+router.put('/update', updateUserProfile);
+router.put('/change-password', changePassword);
+
+module.exports = router; 
+
+
+────────────────────────────────────────────────────────────
+FILE: routes\workshopRoutes.js
+TYPE: JavaScript
+SIZE: 366 bytes (0.4 KB)
+────────────────────────────────────────────────────────────
+
+const express = require('express');
+const router = express.Router();
+const workshopController = require('../controllers/workshopController');
+const uploadExcel = require('../middleware/uploadExcel');
+
+// POST /workshops/register
+router.post('/register', uploadExcel.single('daftar_karyawan'), workshopController.registerWorkshop);
+
+module.exports = router;
+
+
+
+==================== MIDDLEWARE ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: middleware\authMiddleware.js
+TYPE: JavaScript
+SIZE: 834 bytes (0.8 KB)
+────────────────────────────────────────────────────────────
+
+const jwt = require('jsonwebtoken');
+
+// modul untuk menghasilkan dan memverifikasi JWT
+
+// memverifikasi token dalam request
+const verifyToken = (req, res, next) => {
+    const token = req.headers["authorization"];
+
+    if(!token) return res.status(403).json({ message: "Token Required" });
+    
+    const tokenParts = token.split(" ");
+    if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
+        return res.status(403).json({ message: "Invalid token format" });
+    }
+
+    jwt.verify(tokenParts[1], process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: "Invalid token" });
+        }
+        req.user = decoded;
+        req.userId = decoded.id; // Menyediakan userId ke request
+        next();
+    });
+};
+
+module.exports = verifyToken;
+
+
+────────────────────────────────────────────────────────────
+FILE: middleware\upload.js
+TYPE: JavaScript
+SIZE: 885 bytes (0.9 KB)
+────────────────────────────────────────────────────────────
+
+const multer = require('multer');
+const path = require('path');
+
+// Storage config
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Folder tempat simpan file
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const uniqueName = `${Date.now()}-${file.fieldname}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+
+// File filter opsional
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'application/pdf') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PDF files are allowed'), false);
+  }
+};
+
+const upload = multer({ storage, fileFilter });
+
+// Export: middleware untuk 2 file
+const uploadCSRFiles = upload.fields([
+  { name: 'proposal', maxCount: 1 },
+  { name: 'legalitas', maxCount: 1 }
+]);
+
+module.exports = { uploadCSRFiles };
+
+
+
+────────────────────────────────────────────────────────────
+FILE: middleware\uploadExcel.js
+TYPE: JavaScript
+SIZE: 782 bytes (0.8 KB)
+────────────────────────────────────────────────────────────
+
+const multer = require('multer');
+const path = require('path');
+
+// Filter hanya izinkan .xls, .xlsx, dan .csv
+const fileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (ext === '.xls' || ext === '.xlsx' || ext === '.csv') {
+    cb(null, true);
+  } else {
+    cb(new Error('Hanya file Excel atau CSV yang diperbolehkan'));
+  }
+};
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/workshop/');
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    cb(null, `${timestamp}-${file.fieldname}${ext}`);
+  }
+});
+
+const uploadExcel = multer({ storage, fileFilter });
+
+module.exports = uploadExcel;
+
+
+
+==================== DOCUMENTATION ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: README-notification.md
+TYPE: Markdown
+SIZE: 3947 bytes (3.9 KB)
+────────────────────────────────────────────────────────────
+
+# Dokumentasi API Notifikasi
+
+API notifikasi ini dibuat untuk mengelola notifikasi pengguna dalam aplikasi TumbuhNyata.
+
+## Persiapan Database
+
+Sebelum menggunakan API, buat tabel notifikasi di database MySQL dengan menjalankan query yang ada di file `config/notification_schema.sql`:
+
+```sql
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id),
+  INDEX idx_created_at (created_at)
+);
+```
+
+## Endpoints API
+
+### 1. Mendapatkan Notifikasi Pengguna
+
+- **Endpoint:** `GET /notifications/:userId`
+- **Deskripsi:** Mengambil semua notifikasi untuk pengguna tertentu
+- **Parameter URL:** 
+  - `userId` - ID pengguna yang ingin diambil notifikasinya
+- **Response:** 
+  ```json
+  [
+    {
+      "id": 1,
+      "user_id": "user123",
+      "title": "Selamat Datang!",
+      "message": "Terima kasih telah bergabung!",
+      "is_read": false,
+      "created_at": "2023-04-27T10:00:00Z"
+    },
+    ...
+  ]
+  ```
+
+### 2. Membuat Notifikasi Baru
+
+- **Endpoint:** `POST /notifications`
+- **Deskripsi:** Membuat notifikasi baru
+- **Body Request:**
+  ```json
+  {
+    "user_id": "user123",
+    "title": "Selamat Datang!",
+    "message": "Terima kasih telah bergabung!"
+  }
+  ```
+- **Response:** 
+  ```json
+  {
+    "id": 1,
+    "user_id": "user123",
+    "title": "Selamat Datang!",
+    "message": "Terima kasih telah bergabung!",
+    "is_read": false,
+    "created_at": "2023-04-27T10:00:00Z"
+  }
+  ```
+
+### 3. Menandai Notifikasi sebagai Dibaca
+
+- **Endpoint:** `PATCH /notifications/:id/read`
+- **Deskripsi:** Menandai notifikasi sebagai telah dibaca
+- **Parameter URL:** 
+  - `id` - ID notifikasi yang ingin ditandai telah dibaca
+- **Response:** 
+  ```json
+  {
+    "message": "Notifikasi berhasil ditandai telah dibaca"
+  }
+  ```
+
+### 4. Menghapus Notifikasi
+
+- **Endpoint:** `DELETE /notifications/:id`
+- **Deskripsi:** Menghapus notifikasi
+- **Parameter URL:** 
+  - `id` - ID notifikasi yang ingin dihapus
+- **Response:** 
+  ```json
+  {
+    "message": "Notifikasi berhasil dihapus"
+  }
+  ```
+
+## Contoh Penggunaan API dari Android
+
+Berikut contoh kode Kotlin untuk mengintegrasikan API notifikasi ini dengan aplikasi Android:
+
+```kotlin
+// Model Notifikasi
+data class Notification(
+    val id: Int,
+    val user_id: String,
+    val title: String,
+    val message: String,
+    val is_read: Boolean,
+    val created_at: String
+)
+
+// Interface API dengan Retrofit
+interface NotificationApi {
+    @GET("notifications/{userId}")
+    suspend fun getNotifications(@Path("userId") userId: String): List<Notification>
+    
+    @PATCH("notifications/{id}/read")
+    suspend fun markAsRead(@Path("id") id: Int): Response<Any>
+}
+
+// Penggunaan dalam ViewModel
+class NotificationViewModel(private val api: NotificationApi) : ViewModel() {
+    private val _notifications = MutableLiveData<List<Notification>>()
+    val notifications: LiveData<List<Notification>> = _notifications
+    
+    fun loadNotifications(userId: String) {
+        viewModelScope.launch {
+            try {
+                val result = api.getNotifications(userId)
+                _notifications.value = result
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+    
+    fun markAsRead(id: Int) {
+        viewModelScope.launch {
+            try {
+                api.markAsRead(id)
+                // Update local data
+                _notifications.value = _notifications.value?.map {
+                    if (it.id == id) it.copy(is_read = true) else it
+                }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+}
+``` 
+
+
+==================== DATABASE SCRIPTS ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: config\notification_schema.sql
+TYPE: SQL
+SIZE: 375 bytes (0.4 KB)
+────────────────────────────────────────────────────────────
+
+-- Buat tabel notifications jika belum ada
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id),
+  INDEX idx_created_at (created_at)
+); 
+
+
+==================== OTHER FILES ====================
+
+
+────────────────────────────────────────────────────────────
+FILE: codebase_to_txt.py
+TYPE: Python
+SIZE: 12638 bytes (12.3 KB)
+────────────────────────────────────────────────────────────
+
+#!/usr/bin/env python3
+"""
+Codebase to Text Converter for NotebookLM
+This script converts an entire codebase into a comprehensive text file
+that can be easily understood by NotebookLM or other AI tools.
+"""
+
+import os
+import fnmatch
+from pathlib import Path
+from datetime import datetime
+
+
+def should_ignore_file(file_path, ignore_patterns):
+    """Check if a file should be ignored based on patterns."""
+    file_name = os.path.basename(file_path)
+    file_path_str = str(file_path)
+    
+    for pattern in ignore_patterns:
+        if fnmatch.fnmatch(file_name, pattern) or fnmatch.fnmatch(file_path_str, pattern):
+            return True
+    return False
+
+
+def should_ignore_directory(dir_path, ignore_dirs):
+    """Check if a directory should be ignored."""
+    dir_name = os.path.basename(dir_path)
+    return dir_name in ignore_dirs
+
+
+def get_file_type(file_path):
+    """Determine file type based on extension."""
+    ext = Path(file_path).suffix.lower()
+    
+    type_mapping = {
+        '.js': 'JavaScript',
+        '.json': 'JSON',
+        '.md': 'Markdown',
+        '.txt': 'Text',
+        '.sql': 'SQL',
+        '.py': 'Python',
+        '.env': 'Environment',
+        '.gitignore': 'Git Ignore',
+        '.yml': 'YAML',
+        '.yaml': 'YAML',
+        '.xml': 'XML',
+        '.html': 'HTML',
+        '.css': 'CSS',
+        '.scss': 'SCSS',
+        '.ts': 'TypeScript',
+        '.tsx': 'TypeScript JSX',
+        '.jsx': 'JavaScript JSX',
+        '.php': 'PHP',
+        '.java': 'Java',
+        '.cpp': 'C++',
+        '.c': 'C',
+        '.h': 'C Header',
+        '.go': 'Go',
+        '.rs': 'Rust',
+        '.rb': 'Ruby',
+        '.kt': 'Kotlin',
+        '.swift': 'Swift',
+        '.dart': 'Dart',
+        '.vue': 'Vue',
+        '.svelte': 'Svelte',
+        '.dockerfile': 'Dockerfile',
+        '.sh': 'Shell Script',
+        '.bat': 'Batch Script',
+        '.ps1': 'PowerShell',
+    }
+    
+    return type_mapping.get(ext, 'Unknown')
+
+
+def read_file_safely(file_path):
+    """Read file content safely with encoding detection."""
+    encodings = ['utf-8', 'utf-8-sig', 'latin-1', 'cp1252', 'iso-8859-1']
+    
+    for encoding in encodings:
+        try:
+            with open(file_path, 'r', encoding=encoding) as f:
+                return f.read()
+        except UnicodeDecodeError:
+            continue
+        except Exception as e:
+            return f"Error reading file: {str(e)}"
+    
+    return "Could not read file - encoding issues"
+
+
+def analyze_codebase_structure(root_path, ignore_dirs, ignore_patterns):
+    """Analyze the codebase structure."""
+    structure = {}
+    file_counts = {}
+    
+    for root, dirs, files in os.walk(root_path):
+        # Remove ignored directories
+        dirs[:] = [d for d in dirs if not should_ignore_directory(os.path.join(root, d), ignore_dirs)]
+        
+        rel_root = os.path.relpath(root, root_path)
+        if rel_root == '.':
+            rel_root = 'root'
+        
+        structure[rel_root] = []
+        
+        for file in files:
+            file_path = os.path.join(root, file)
+            if not should_ignore_file(file_path, ignore_patterns):
+                file_type = get_file_type(file_path)
+                structure[rel_root].append({
+                    'name': file,
+                    'type': file_type,
+                    'size': os.path.getsize(file_path)
+                })
+                
+                # Count file types
+                file_counts[file_type] = file_counts.get(file_type, 0) + 1
+    
+    return structure, file_counts
+
+
+def convert_codebase_to_text(root_path, output_file='codebase_documentation.txt'):
+    """Convert entire codebase to a single text file."""
+    
+    # Files and directories to ignore
+    ignore_dirs = {
+        'node_modules', '.git', '__pycache__', '.pytest_cache', 
+        'dist', 'build', '.next', '.nuxt', 'target', 'bin', 'obj',
+        '.vscode', '.idea', 'vendor', 'coverage', '.nyc_output',
+        'uploads', 'logs', 'tmp', 'temp', '.cache'
+    }
+    
+    ignore_patterns = [
+        '*.log', '*.tmp', '*.temp', '*.cache', '*.pid', '*.lock',
+        '*.stackdump', 'package-lock.json', 'yarn.lock', '*.min.js',
+        '*.min.css', '*.map', '*.exe', '*.dll', '*.so', '*.dylib',
+        '*.zip', '*.tar.gz', '*.rar', '*.7z', '*.pdf', '*.doc',
+        '*.docx', '*.xls', '*.xlsx', '*.ppt', '*.pptx', '*.jpg',
+        '*.jpeg', '*.png', '*.gif', '*.svg', '*.ico', '*.mp3',
+        '*.mp4', '*.avi', '*.mov', '*.wav', '*.flac'
+    ]
+    
+    print(f"🔍 Analyzing codebase structure...")
+    structure, file_counts = analyze_codebase_structure(root_path, ignore_dirs, ignore_patterns)
+    
+    print(f"📝 Converting codebase to text file: {output_file}")
+    
+    with open(output_file, 'w', encoding='utf-8') as out_file:
+        # Write header
+        out_file.write("=" * 80 + "\n")
+        out_file.write("CODEBASE DOCUMENTATION FOR NOTEBOOKLM\n")
+        out_file.write("=" * 80 + "\n")
+        out_file.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        out_file.write(f"Project root: {os.path.abspath(root_path)}\n")
+        out_file.write("=" * 80 + "\n\n")
+        
+        # Write project overview
+        out_file.write("PROJECT OVERVIEW\n")
+        out_file.write("-" * 40 + "\n")
+        out_file.write("This appears to be a TumbuhNyata Backend API project - a Node.js/Express application\n")
+        out_file.write("for managing CSR (Corporate Social Responsibility), carbon emissions tracking,\n")
+        out_file.write("certifications, workshops, and notifications for companies.\n\n")
+        
+        # Write file statistics
+        out_file.write("FILE STATISTICS\n")
+        out_file.write("-" * 40 + "\n")
+        total_files = sum(file_counts.values())
+        out_file.write(f"Total files processed: {total_files}\n\n")
+        
+        for file_type, count in sorted(file_counts.items()):
+            out_file.write(f"{file_type:20}: {count:3} files\n")
+        out_file.write("\n")
+        
+        # Write directory structure
+        out_file.write("DIRECTORY STRUCTURE\n")
+        out_file.write("-" * 40 + "\n")
+        for directory, files in sorted(structure.items()):
+            if files:  # Only show directories with files
+                out_file.write(f"📁 {directory}/\n")
+                for file_info in sorted(files, key=lambda x: x['name']):
+                    size_kb = file_info['size'] / 1024
+                    out_file.write(f"   📄 {file_info['name']} ({file_info['type']}, {size_kb:.1f} KB)\n")
+                out_file.write("\n")
+        
+        out_file.write("\n" + "=" * 80 + "\n")
+        out_file.write("COMPLETE SOURCE CODE\n")
+        out_file.write("=" * 80 + "\n\n")
+        
+        # Process files by category for better organization
+        categories = {
+            'Configuration & Setup': ['package.json', '.env', '.gitignore', 'app.js'],
+            'Database Models': [],
+            'Controllers': [],
+            'Routes': [],
+            'Middleware': [],
+            'Documentation': ['README.md', 'README-notification.md'],
+            'Database Scripts': [],
+            'Other Files': []
+        }
+        
+        # Walk through files and categorize them
+        processed_files = set()
+        
+        for root, dirs, files in os.walk(root_path):
+            # Remove ignored directories
+            dirs[:] = [d for d in dirs if not should_ignore_directory(os.path.join(root, d), ignore_dirs)]
+            
+            for file in files:
+                file_path = os.path.join(root, file)
+                rel_path = os.path.relpath(file_path, root_path)
+                
+                if should_ignore_file(file_path, ignore_patterns):
+                    continue
+                
+                # Categorize files
+                if file in categories['Configuration & Setup']:
+                    categories['Configuration & Setup'].append(rel_path)
+                elif 'models' in rel_path:
+                    categories['Database Models'].append(rel_path)
+                elif 'controllers' in rel_path:
+                    categories['Controllers'].append(rel_path)
+                elif 'routes' in rel_path:
+                    categories['Routes'].append(rel_path)
+                elif 'middleware' in rel_path:
+                    categories['Middleware'].append(rel_path)
+                elif file.endswith('.md'):
+                    categories['Documentation'].append(rel_path)
+                elif file.endswith('.sql'):
+                    categories['Database Scripts'].append(rel_path)
+                else:
+                    categories['Other Files'].append(rel_path)
+        
+        # Write files by category
+        for category, file_list in categories.items():
+            if not file_list:
+                continue
+                
+            out_file.write(f"\n{'=' * 20} {category.upper()} {'=' * 20}\n\n")
+            
+            # Remove duplicates and sort
+            unique_files = list(set(file_list))
+            unique_files.sort()
+            
+            for rel_file_path in unique_files:
+                if rel_file_path in categories['Configuration & Setup'][:4]:  # Skip the added ones
+                    continue
+                    
+                full_file_path = os.path.join(root_path, rel_file_path)
+                
+                if not os.path.exists(full_file_path):
+                    continue
+                    
+                file_type = get_file_type(full_file_path)
+                file_size = os.path.getsize(full_file_path)
+                
+                out_file.write(f"\n{'─' * 60}\n")
+                out_file.write(f"FILE: {rel_file_path}\n")
+                out_file.write(f"TYPE: {file_type}\n")
+                out_file.write(f"SIZE: {file_size} bytes ({file_size/1024:.1f} KB)\n")
+                out_file.write(f"{'─' * 60}\n\n")
+                
+                # Read and write file content
+                content = read_file_safely(full_file_path)
+                
+                if content.strip():
+                    out_file.write(content)
+                    out_file.write("\n\n")
+                else:
+                    out_file.write("[Empty file or could not read content]\n\n")
+                
+                processed_files.add(rel_file_path)
+        
+        # Write summary
+        out_file.write("\n" + "=" * 80 + "\n")
+        out_file.write("SUMMARY\n")
+        out_file.write("=" * 80 + "\n")
+        out_file.write(f"Total files processed: {len(processed_files)}\n")
+        out_file.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        out_file.write("\nThis documentation contains the complete source code of the TumbuhNyata Backend API,\n")
+        out_file.write("including all models, controllers, routes, middleware, and configuration files.\n")
+        out_file.write("The project is a comprehensive solution for corporate sustainability management.\n")
+    
+    print(f"✅ Conversion complete! Output saved to: {output_file}")
+    print(f"📊 Processed {len(processed_files)} files")
+    return output_file
+
+
+def main():
+    """Main function to run the converter."""
+    print("🚀 TumbuhNyata Codebase to Text Converter")
+    print("=" * 50)
+    
+    # Get current directory as default
+    current_dir = os.getcwd()
+    print(f"Current directory: {current_dir}")
+    
+    # Allow user to specify different directory
+    root_path = input(f"Enter project root path (or press Enter to use current directory): ").strip()
+    if not root_path:
+        root_path = current_dir
+    
+    if not os.path.exists(root_path):
+        print(f"❌ Error: Directory '{root_path}' does not exist!")
+        return
+    
+    # Allow user to specify output file
+    output_file = input("Enter output filename (or press Enter for 'tumbuhnyata_codebase.txt'): ").strip()
+    if not output_file:
+        output_file = 'tumbuhnyata_codebase.txt'
+    
+    try:
+        result_file = convert_codebase_to_text(root_path, output_file)
+        print(f"\n🎉 Success! Your codebase has been converted to: {result_file}")
+        print("📚 You can now upload this file to NotebookLM for analysis!")
+        
+    except Exception as e:
+        print(f"❌ Error during conversion: {str(e)}")
+
+
+if __name__ == "__main__":
+    main() 
+
+
+================================================================================
+SUMMARY
+================================================================================
+Total files processed: 31
+Generated on: 2025-06-07 16:40:19
+
+This documentation contains the complete source code of the TumbuhNyata Backend API,
+including all models, controllers, routes, middleware, and configuration files.
+The project is a comprehensive solution for corporate sustainability management.

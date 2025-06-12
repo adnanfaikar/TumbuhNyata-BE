@@ -1,0 +1,3 @@
+id_perusahaan,year,month,carbon_value,document_type,document_name,analysis
+1,2025,11,128.75,data_emisi,emission_report_june.csv,Monthly emissions data
+1,2025,12,110.50,data_emisi,emission_report_june.csv,Monthly emissions data

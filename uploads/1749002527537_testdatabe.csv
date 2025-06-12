@@ -1,0 +1,2 @@
+id_perusahaan,year,month,carbon_value,document_type,document_name,analysis
+1,2024,6,150.75,data_emisi,emission_report_june.csv,Monthly emissions data
