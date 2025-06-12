@@ -42,7 +42,7 @@ router.get('/dashboard', async (req, res) => {
     const whereClause = { year: parseInt(year) };
     if (company_id) whereClause.company_id = company_id;
 
-    const CarbonSubmission = require('../models/CarbonSubmission');
+    const CarbonSubmission = require('../models/carbonSubmission');
 
     // Get analytics
     const monthlyData = await CarbonSubmission.findAll({
