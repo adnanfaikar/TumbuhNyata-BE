@@ -60,9 +60,14 @@ class CarbonSubmissionController {
           .on("data", (data) => {
             // Validasi dan clean data sesuai dengan CSV structure
             const allowedTypes = [
+              "data_emisi",
+              "data_energi",
+              "data_air",
+              "data_pohon",
+              "data_sampah",
+              "data_manfaat",
               "laporan_csr",
               "sertifikasi_csr",
-              "data_emisi",
               "dokumen_pendukung_lain",
             ];
             let docType = data.document_type
@@ -76,7 +81,7 @@ class CarbonSubmissionController {
                 : null,
               year: parseInt(data.year) || new Date().getFullYear(),
               month: parseInt(data.month) || new Date().getMonth() + 1,
-              carbon_value: parseFloat(data.carbon_value) || 0,
+              carbon_value: parseFloat(data.carbon_value) || 0, // General value field untuk semua KPI types
               document_type: docType,
               document_name: data.document_name
                 ? data.document_name.toString().trim()
@@ -165,9 +170,14 @@ class CarbonSubmissionController {
 
       // Validate and clean data
       const allowedTypes = [
+        "data_emisi",
+        "data_energi",
+        "data_air",
+        "data_pohon",
+        "data_sampah",
+        "data_manfaat",
         "laporan_csr",
         "sertifikasi_csr",
-        "data_emisi",
         "dokumen_pendukung_lain",
       ];
 
@@ -249,9 +259,14 @@ class CarbonSubmissionController {
 
       // Validate and clean data
       const allowedTypes = [
+        "data_emisi",
+        "data_energi",
+        "data_air",
+        "data_pohon",
+        "data_sampah",
+        "data_manfaat",
         "laporan_csr",
         "sertifikasi_csr",
-        "data_emisi",
         "dokumen_pendukung_lain",
       ];
 
@@ -565,8 +580,35 @@ class CarbonSubmissionController {
       // Get recent submissions using model method
       const recentSubmissions = await CarbonSubmission.getRecentSubmissions(
         company_id,
-        5
+        100 // Increased limit for better grouping
       );
+
+      // Group and aggregate by document_type (NEW: Support for multiple CSR types)
+      const documentTypes = [
+        "data_emisi",
+        "data_energi",
+        "data_air",
+        "data_pohon",
+        "data_sampah",
+        "data_manfaat",
+      ];
+      const aggregatedData = {};
+
+      documentTypes.forEach((type) => {
+        const typeData = recentSubmissions.filter(
+          (item) => item.document_type === type
+        );
+        const totalValue = typeData.reduce(
+          (sum, item) => sum + parseFloat(item.carbon_value || 0),
+          0
+        );
+
+        aggregatedData[type] = {
+          total_value: totalValue,
+          submission_count: typeData.length,
+          latest_submission: typeData[0] || null,
+        };
+      });
 
       // Format chart data (ensure all 12 months are included)
       const chartData = Array.from({ length: 12 }, (_, i) => {
@@ -607,6 +649,7 @@ class CarbonSubmissionController {
             submissionCount: finalTotalSubmissions,
             lastUpdated: new Date(),
           },
+          kpi_breakdown: aggregatedData, // NEW: Breakdown per KPI type untuk frontend
         },
       });
     } catch (error) {
@@ -725,19 +768,19 @@ class CarbonSubmissionController {
         (sum, month) => sum + month.submission_count,
         0
       );
-      const analysis = `Analisis carbon footprint untuk tahun ${actualYear}. Total emisi: ${formattedStats.total_value.toFixed(
+      const analysis = `Analisis CSR reporting untuk tahun ${actualYear}. Total nilai: ${formattedStats.total_value.toFixed(
         1
-      )} kg CO₂e dengan rata-rata ${formattedStats.average_value.toFixed(
+      )} dengan rata-rata ${formattedStats.average_value.toFixed(
         1
-      )} kg CO₂e per submission. Total ${totalSubmissions} submission tercatat.`;
+      )} per submission. Total ${totalSubmissions} submission tercatat untuk berbagai KPI (emisi, energi, air, pohon, sampah, manfaat).`;
 
       // Final response
       res.status(200).json({
         success: true,
         data: {
           kpi_type: "carbon_footprint",
-          title: "Carbon Footprint",
-          unit: "kg CO₂e",
+          title: "CSR Reporting Dashboard",
+          unit: "General Value",
           yearly_data: yearly_data,
           multi_year_data: multi_year_data,
           statistics: formattedStats,

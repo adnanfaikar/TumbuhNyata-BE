@@ -35,13 +35,30 @@ const CarbonSubmission = sequelize.define(
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 0.0,
-      comment: "Nilai carbon footprint dalam kg CO2e",
+      comment:
+        "General value field for all KPI types (emisi, energi, air, pohon, sampah, manfaat)",
     },
     document_type: {
       type: DataTypes.STRING(255),
       allowNull: true,
-      defaultValue: "csv_upload",
-      comment: "Jenis dokumen (csv_upload, pdf, xlsx, manual_input, etc.)",
+      defaultValue: "data_emisi",
+      validate: {
+        isIn: [
+          [
+            "data_emisi",
+            "data_energi",
+            "data_air",
+            "data_pohon",
+            "data_sampah",
+            "data_manfaat",
+            "laporan_csr",
+            "sertifikasi_csr",
+            "dokumen_pendukung_lain",
+          ],
+        ],
+      },
+      comment:
+        "Jenis dokumen CSR (data_emisi, data_energi, data_air, data_pohon, data_sampah, data_manfaat, dll)",
     },
     document_name: {
       type: DataTypes.STRING(255),
