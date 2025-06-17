@@ -1,0 +1,5 @@
+id_perusahaan,year,month,carbon_value,document_type,document_name,analysis
+CompA,2024,6,150.75,data_emisi,emission_report_june.csv,Monthly emissions data
+CompB,2024,6,220.50,laporan_csr,csr_report_q2.pdf,CSR activity carbon footprint
+CompA,2024,7,160.10,,emission_report_july.csv,
+,2024,7,95.60,data_emisi,,Data from a new source
