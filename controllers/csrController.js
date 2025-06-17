@@ -20,7 +20,8 @@ exports.submitCSR = async (req, res) => {
       start_date,
       end_date,
       budget,
-      agreed
+      agreed,
+      status
     } = req.body;
 
     // Debug output
@@ -84,7 +85,8 @@ exports.submitCSR = async (req, res) => {
       start_date: convertedStartDate,
       end_date: convertedEndDate,
       budget: budgetNumber,
-      agreed: agreed === true || agreed === 'true'
+      agreed: agreed === true || agreed === 'true',
+      status: status || 'pending'
     });
 
     const newSubmission = await CsrSubmission.create({
@@ -100,6 +102,7 @@ exports.submitCSR = async (req, res) => {
       proposal_url,
       legality_url,
       agreed: agreed === true || agreed === 'true',
+      status: status || 'pending'
     });
 
     res.status(201).json({ message: 'Pengajuan CSR berhasil dibuat', data: newSubmission });
