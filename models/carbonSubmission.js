@@ -134,21 +134,21 @@ CarbonSubmission.getTotalStats = async function (year, company_id = null) {
 };
 
 // Method untuk mendapatkan data tren tahunan
-CarbonSubmission.getMultiYearData = async function (
-  endYear,
-  years = 5,
-  company_id = null
+CarbonSubmission.getYearlyTrend = async function (
+  company_id = null,
+  years = 5
 ) {
-  const startYear = endYear - years + 1;
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - years + 1;
+
   const whereClause = {
     year: {
       [Op.gte]: startYear,
       [Op.lte]: currentYear,
     },
   };
-  if (company_id && company_id !== "undefined") {
-    whereClause.company_id = company_id;
-  }
+  if (company_id) whereClause.company_id = company_id;
+
   return await this.findAll({
     attributes: [
       "year",
