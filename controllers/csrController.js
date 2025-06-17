@@ -175,4 +175,61 @@ exports.getCSRHistoryDetail = async (req, res) => {
     console.error('Error fetching CSR history detail:', err);
     res.status(500).json({ message: 'Gagal mengambil detail riwayat CSR.' });
   }
-}; 
+};
+
+// NEW: menghapus riwayat CSR
+exports.deleteCSRHistory = async (req, res) => {
+  try {
+    const user_id = req.query.user_id;
+    const { id } = req.params;
+
+    if (!user_id) {
+      return res.status(400).json({ message: 'Parameter user_id diperlukan.' });
+    }
+
+    const submission = await CsrSubmission.findByPk(id);
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Riwayat CSR tidak ditemukan.' });
+    }
+
+    // Cek apakah submission milik user yang sesuai
+    if (String(submission.user_id) !== String(user_id)) {
+      console.log('User ID mismatch for deletion:', { 
+        submissionUserId: submission.user_id, 
+        requestedUserId: user_id,
+        types: {
+          submissionUserIdType: typeof submission.user_id,
+          requestedUserIdType: typeof user_id
+        }
+      });
+      return res.status(403).json({ message: 'Anda tidak memiliki akses untuk menghapus riwayat CSR ini.' });
+    }
+
+    // Hapus file yang terupload jika ada
+    const fs = require('fs');
+    if (submission.proposal_url) {
+      try {
+        fs.unlinkSync(submission.proposal_url);
+      } catch (err) {
+        console.log('Error deleting proposal file:', err.message);
+      }
+    }
+    
+    if (submission.legality_url) {
+      try {
+        fs.unlinkSync(submission.legality_url);
+      } catch (err) {
+        console.log('Error deleting legality file:', err.message);
+      }
+    }
+
+    // Hapus data dari database
+    await submission.destroy();
+
+    res.json({ message: 'Riwayat CSR berhasil dihapus.' });
+  } catch (err) {
+    console.error('Error deleting CSR history:', err);
+    res.status(500).json({ message: 'Gagal menghapus riwayat CSR.' });
+  }
+};

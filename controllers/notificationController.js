@@ -6,7 +6,10 @@ const notificationController = {
   getNotifications: async (req, res) => {
     try {
       const { userId } = req.params;
-      const notifications = await Notification.findByUserId(userId);
+      const notifications = await Notification.findAll({
+        where: { user_id: userId },
+        order: [['created_at', 'DESC']]
+      });
       res.json(notifications);
     } catch (error) {
       console.error('Error retrieving notifications:', error);
@@ -24,7 +27,11 @@ const notificationController = {
         return res.status(400).json({ message: 'user_id, title, dan message harus diisi' });
       }
 
-      const newNotification = await Notification.create({ user_id, title, message });
+      const newNotification = await Notification.create({ 
+        user_id, 
+        title, 
+        message 
+      });
       res.status(201).json(newNotification);
     } catch (error) {
       console.error('Error creating notification:', error);
@@ -36,8 +43,16 @@ const notificationController = {
   markAsRead: async (req, res) => {
     try {
       const { id } = req.params;
-      await Notification.markAsRead(id);
-      res.json({ message: 'Notifikasi berhasil ditandai telah dibaca' });
+      const [updatedRowsCount] = await Notification.update(
+        { is_read: true },
+        { where: { id } }
+      );
+      
+      if (updatedRowsCount > 0) {
+        res.json({ message: 'Notifikasi berhasil ditandai telah dibaca' });
+      } else {
+        res.status(404).json({ message: 'Notifikasi tidak ditemukan' });
+      }
     } catch (error) {
       console.error('Error marking notification as read:', error);
       res.status(500).json({ message: 'Terjadi kesalahan saat menandai notifikasi telah dibaca' });
@@ -48,8 +63,15 @@ const notificationController = {
   deleteNotification: async (req, res) => {
     try {
       const { id } = req.params;
-      await Notification.delete(id);
-      res.json({ message: 'Notifikasi berhasil dihapus' });
+      const deletedRowsCount = await Notification.destroy({
+        where: { id }
+      });
+      
+      if (deletedRowsCount > 0) {
+        res.json({ message: 'Notifikasi berhasil dihapus' });
+      } else {
+        res.status(404).json({ message: 'Notifikasi tidak ditemukan' });
+      }
     } catch (error) {
       console.error('Error deleting notification:', error);
       res.status(500).json({ message: 'Terjadi kesalahan saat menghapus notifikasi' });
