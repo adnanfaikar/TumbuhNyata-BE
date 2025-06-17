@@ -13,8 +13,8 @@ exports.getUserCertifications = (req, res) => {
   }
 
   const sql =
-    "SELECT * FROM certifications WHERE user_id = ? ORDER BY submission_date DESC";
-  db.query(sql, [userId], (err, results) => {
+    "SELECT * FROM certifications WHERE user_id = :userId ORDER BY submission_date DESC";
+  db.query(sql, { replacements: { userId: userId }, type: db.QueryTypes.SELECT }, (err, results) => {
     if (err) {
       console.error("Error fetching certifications:", err);
       return res.status(500).json({
