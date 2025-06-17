@@ -1,5 +1,5 @@
 // models/CarbonSubmission.js
-const { DataTypes } = require("sequelize");
+const { DataTypes, Op } = require("sequelize");
 const sequelize = require("../config/db"); // Sesuaikan dengan konfigurasi database Anda
 
 const CarbonSubmission = sequelize.define(
@@ -143,8 +143,8 @@ CarbonSubmission.getYearlyTrend = async function (
 
   const whereClause = {
     year: {
-      [sequelize.Op.gte]: startYear,
-      [sequelize.Op.lte]: currentYear,
+      [Op.gte]: startYear,
+      [Op.lte]: currentYear,
     },
   };
   if (company_id) whereClause.company_id = company_id;
@@ -195,8 +195,8 @@ CarbonSubmission.getMultiYearData = async function (
   const startYear = endYear - years + 1;
   const whereClause = {
     year: {
-      [sequelize.Op.gte]: startYear,
-      [sequelize.Op.lte]: endYear,
+      [Op.gte]: startYear,
+      [Op.lte]: endYear,
     },
   };
   if (company_id && company_id !== "undefined") {
